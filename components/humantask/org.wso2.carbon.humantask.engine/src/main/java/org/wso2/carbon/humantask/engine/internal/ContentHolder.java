@@ -19,34 +19,40 @@
 
 package org.wso2.carbon.humantask.engine.internal;
 
-import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
+import org.wso2.carbon.humantask.engine.HumanTaskEngine;
+import org.wso2.carbon.humantask.engine.exceptions.EngineRuntimeException;
 
 /**
  * Content Holder for HumanTask component.
  *
  * @since 5.0.0
  */
-public class HumanTaskContentHolder {
+public class ContentHolder {
 
-    private static HumanTaskContentHolder instance = null;
+    private static ContentHolder instance = null;
 
-    private HumanTaskConfiguration humanTaskConfiguration;
+    private HumanTaskEngine taskEngine;
 
-    private HumanTaskContentHolder() {
+    private ContentHolder() {
     }
 
-    public static HumanTaskContentHolder getInstance() {
+    public static ContentHolder getInstance() {
         if (instance == null) {
-            instance = new HumanTaskContentHolder();
+            instance = new ContentHolder();
         }
         return instance;
     }
 
-    public HumanTaskConfiguration getHumanTaskConfiguration() {
-        return humanTaskConfiguration;
+    public HumanTaskEngine getTaskEngine() {
+        return taskEngine;
     }
 
-    protected void setHumanTaskConfiguration(HumanTaskConfiguration humanTaskConfiguration) {
-        this.humanTaskConfiguration = humanTaskConfiguration;
+
+    public synchronized void setTaskEngine(HumanTaskEngine taskEngine) throws EngineRuntimeException {
+        if (this.taskEngine != null && taskEngine.isEngineRunning()) {
+            throw new EngineRuntimeException("Can't set a new task engine instance, since old instance is still " +
+                    "running. Shutdown existing instance first.");
+        }
+        this.taskEngine = taskEngine;
     }
 }

@@ -20,4 +20,6 @@
 package org.wso2.carbon.humantask.engine.runtime;
 
 public class HumanTaskRuntime {
+
+
 }

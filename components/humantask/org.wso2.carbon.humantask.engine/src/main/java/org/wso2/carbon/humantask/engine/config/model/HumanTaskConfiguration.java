@@ -19,23 +19,27 @@
 
 package org.wso2.carbon.humantask.engine.config.model;
 
+import org.wso2.carbon.humantask.engine.runtime.impl.CaasBasedPeopleQueryEvaluator;
+
 /**
  * HumanTaskConfiguration holds static configuration parameters specified in the humantask yaml file.
  */
 public class HumanTaskConfiguration {
 
-    private String id = "humantask-config";
+    private String engineId = "default-engine";
 
     private String name = "WS-HumanTask 1.1 engine";
 
+    private String peopleQueryEvaluator = CaasBasedPeopleQueryEvaluator.class.getCanonicalName();
+
     private DataSource dataSource = new DataSource();
 
-    public String getId() {
-        return id;
+    public String getEngineId() {
+        return engineId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setEngineId(String engineId) {
+        this.engineId = engineId;
     }
 
     public String getName() {
@@ -44,6 +48,14 @@ public class HumanTaskConfiguration {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPeopleQueryEvaluator() {
+        return peopleQueryEvaluator;
+    }
+
+    public void setPeopleQueryEvaluator(String peopleQueryEvaluator) {
+        this.peopleQueryEvaluator = peopleQueryEvaluator;
     }
 
     public DataSource getDataSource() {

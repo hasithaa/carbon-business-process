@@ -19,15 +19,21 @@
 
 package org.wso2.carbon.humantask.engine;
 
+import org.wso2.carbon.humantask.engine.internal.ContentHolder;
+
 /**
  * OSGI service exposing HumanTaskEngine.
  */
-public interface HumanTaskEngineService {
+public class HumanTaskEngineOSGIServiceImpl implements HumanTaskEngineOSGIService {
 
     /**
      * Access the HumanTask Engine
      *
      * @return HumanTaskServer
      */
-    HumanTaskEngine getHumanTaskEngine();
+    public HumanTaskEngine getHumanTaskEngine() {
+        return ContentHolder.getInstance().getTaskEngine();
+    }
+
+
 }

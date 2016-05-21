@@ -17,30 +17,39 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.config.model;
+package org.wso2.carbon.humantask.engine.runtime.audit;
 
-/**
- * DataSource bean.
- */
-public class DataSource {
+public interface HumanTaskAuditor {
 
-    private boolean runInMemory = false;
-
-    private String jndiName = "HumanTaskDS";
-
-    public boolean isRunInMemory() {
-        return runInMemory;
+    enum AuditType {
+        /**
+         * User originated audits.
+         */
+        ACCESS,
+        /**
+         * Scheduler Tasked originated audits.
+         */
+        SCHEDULED,
+        /**
+         * Task state changes related audits.
+         */
+        EVENT,
+        /**
+         * Internal Server related audits.
+         */
+        INTERNAL,
     }
 
-    public void setRunInMemory(boolean runInMemory) {
-        this.runInMemory = runInMemory;
+    enum AuditLevel {
+        CRITICAL,
+        ERROR,
+        WARNING,
+        INFO,
+        TRACE,
     }
 
-    public String getJndiName() {
-        return jndiName;
-    }
 
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
-    }
+    void audit(AuditType auditType, AuditLevel auditLevel, String taskID, String originator, String operation, String
+            message);
+
 }

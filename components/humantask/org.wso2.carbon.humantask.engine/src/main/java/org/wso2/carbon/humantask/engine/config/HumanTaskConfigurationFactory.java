@@ -22,7 +22,7 @@ package org.wso2.carbon.humantask.engine.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
-import org.wso2.carbon.humantask.engine.exceptions.HumanTaskRuntimeException;
+import org.wso2.carbon.humantask.engine.exceptions.EngineRuntimeException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
@@ -54,7 +54,7 @@ public class HumanTaskConfigurationFactory {
         this.yamlConfigName = yamlConfigName;
     }
 
-    public HumanTaskConfiguration build() {
+    public HumanTaskConfiguration build() throws EngineRuntimeException {
         if (yamlConfigName == null) {
             return new HumanTaskConfiguration();
         }
@@ -74,7 +74,7 @@ public class HumanTaskConfigurationFactory {
             return yaml.loadAs(yamlFileString, HumanTaskConfiguration.class);
         } catch (IOException e) {
             String errorMessage = "Failed populate HumanTaskConfiguration from " + configFileLocation;
-            throw new HumanTaskRuntimeException(errorMessage, e);
+            throw new EngineRuntimeException(errorMessage, e);
         }
     }
 

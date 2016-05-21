@@ -32,17 +32,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceManagementService;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.humantask.engine.HumanTaskEngineService;
-import org.wso2.carbon.humantask.engine.HumanTaskEngineServiceImpl;
+import org.wso2.carbon.humantask.engine.HumanTaskEngine;
+import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
+import org.wso2.carbon.humantask.engine.HumanTaskEngineOSGIService;
 import org.wso2.carbon.humantask.engine.config.HumanTaskConfigurationFactory;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
+import org.wso2.carbon.humantask.engine.exceptions.EngineRuntimeException;
 
 /**
  * HumanTask Component.
  */
 @Component(
         name = "org.wso2.carbon.humantask.engine.internal.HumanTaskComponent",
-        service = HumanTaskEngineService.class,
+        service = HumanTaskEngineOSGIService.class,
         immediate = true)
 public class HumanTaskComponent {
 
@@ -57,23 +59,30 @@ public class HumanTaskComponent {
         log.info("BPMN core component activator...");
         try {
             this.bundleContext = ctxt.getBundleContext();
-            HumanTaskContentHolder holder = HumanTaskContentHolder.getInstance();
+            ContentHolder holder = ContentHolder.getInstance();
 
             // TODO : Read config from yaml.
             HumanTaskConfigurationFactory configurationFactory = new HumanTaskConfigurationFactory();
             HumanTaskConfiguration humanTaskConfiguration = configurationFactory.build();
-            holder.setHumanTaskConfiguration(humanTaskConfiguration);
 
-            // Building HumanTask engine, 
-            holder.setEngine(ActivitiEngineBuilder.getInstance().buildEngine());
+            HumanTaskEngine engine = new HumanTaskEngineImpl();
 
-            HumanTaskEngineService humanTaskEngineService = new HumanTaskEngineServiceImpl();
-            BPMNEngineServiceImpl bpmnEngineService = new BPMNEngineServiceImpl();
-            bpmnEngineService
-                    .setProcessEngine(ActivitiEngineBuilder.getInstance().getProcessEngine());
-            bpmnEngineService.setCarbonRealmService(IdentityDataHolder.getInstance().getCarbonRealmService());
+            engine.setEngineConfiguration(humanTaskConfiguration);
+            engine.init();
 
-            bundleContext.registerService(HumanTaskEngineService.class.getName(), humanTaskEngineService, null);
+            holder.setTaskEngine(engine);
+
+//            // Building HumanTask engine,
+//            holder.setEngine(ActivitiEngineBuilder.getInstance().buildEngine());
+//
+//            HumanTaskEngineOSGIService humanTaskEngineOSGIService = new HumanTaskEngineOSGIServiceImpl();
+//            BPMNEngineServiceImpl bpmnEngineService = new BPMNEngineServiceImpl();
+//            bpmnEngineService
+//                    .setProcessEngine(ActivitiEngineBuilder.getInstance().getProcessEngine());
+//            bpmnEngineService.setCarbonRealmService(IdentityDataHolder.getInstance().getCarbonRealmService());
+//
+//            bundleContext.registerService(HumanTaskEngineOSGIService.class.getName(), humanTaskEngineOSGIService,
+// null);
 
         } catch (Throwable t) {
             log.error("Error initializing HumanTask component " + t);
@@ -83,7 +92,13 @@ public class HumanTaskComponent {
     @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         log.info("Deactivating the HumanTask component...");
-        ProcessEngines.destroy();
+        if (ContentHolder.getInstance().getTaskEngine().isEngineRunning()) {
+            try {
+                ContentHolder.getInstance().getTaskEngine().destroy();
+            } catch (EngineRuntimeException e) {
+                log.error("Unable to shutdown taskEngine : " + e.getLocalizedMessage(), e);
+            }
+        }
         log.info("HumanTask component is deactivated...");
     }
 

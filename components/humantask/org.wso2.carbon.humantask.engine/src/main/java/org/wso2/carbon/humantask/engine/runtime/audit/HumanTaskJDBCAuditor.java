@@ -17,21 +17,21 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine;
+package org.wso2.carbon.humantask.engine.runtime.audit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * OSGI service exposing HumanTaskEngine.
+ * JDBC based Audit publisher.
  */
-public class HumanTaskEngineServiceImpl implements HumanTaskEngineService {
+public class HumanTaskJDBCAuditor implements HumanTaskAuditor {
 
-    private HumanTaskEngine engine;
+    private static final Logger log = LoggerFactory.getLogger(HumanTaskJDBCAuditor.class);
 
-    /**
-     * Access the HumanTask Engine
-     *
-     * @return HumanTaskServer
-     */
-    public HumanTaskEngine getHumanTaskEngine() {
-        return engine;
+    @Override
+    public void audit(AuditType auditType, AuditLevel auditLevel, String taskID, String originator, String operation,
+                      String message) {
+        throw new UnsupportedOperationException(HumanTaskJDBCAuditor.class + " is not implemented yet.");
     }
 }

@@ -17,22 +17,17 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.api.user;
+package org.wso2.carbon.humantask.engine.runtime;
 
-/**
- * This defines Query Operations defined in HumanTask Specification 1.1 in section
- * 7.1.2 Simple Query Operations and 7.1.3 Advanced Query Operation.
- *
- * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430338">7.1.2 Simple
- * Query Operations</a>.
- * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430339">7.1.3
- * Advanced Query Operation</a>.
- */
-public interface SimpleQueryAPI {
+import java.util.List;
 
-    void start(final String taskID);
+public interface PeopleQueryEvaluator {
 
-    void claim(final String taskID);
+    boolean isExistingUser(String userName);
+
+    boolean isExistingGroup(String roleName);
+
+    List<String> getGroupsOfUser(String userName);
 
 
 }
