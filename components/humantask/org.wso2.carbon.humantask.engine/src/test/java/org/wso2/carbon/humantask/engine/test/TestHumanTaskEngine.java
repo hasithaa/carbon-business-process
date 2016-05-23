@@ -31,8 +31,11 @@ public class TestHumanTaskEngine {
     @org.testng.annotations.BeforeClass
     public void setup() throws Exception {
         HumanTaskConfiguration defaultConfig = new HumanTaskConfiguration();
-        // Replacing with Default values.
+        // Replacing Default values.
         defaultConfig.setPeopleQueryEvaluator(InMemoryPeopleQueryEvaluator.class.getCanonicalName());
+        defaultConfig.getDataSource().setRunInMemory(true);
+
+        // Initializing HumanTask engine.
         HumanTaskEngine engine = new HumanTaskEngineImpl();
         engine.setEngineConfiguration(defaultConfig);
         engine.init();

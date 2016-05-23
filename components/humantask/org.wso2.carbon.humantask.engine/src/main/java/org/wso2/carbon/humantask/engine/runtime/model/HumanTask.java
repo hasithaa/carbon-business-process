@@ -17,12 +17,12 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.db.model;
+package org.wso2.carbon.humantask.engine.runtime.model;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.humantask.engine.exceptions.HumanTaskRuntimeException;
+import org.wso2.carbon.humantask.engine.runtime.HumanTaskRuntimeException;
 
 import java.util.Date;
 
@@ -32,62 +32,6 @@ import java.util.Date;
 public class HumanTask {
 
     private final static Logger logger = LoggerFactory.getLogger(HumanTask.class);
-
-    /**
-     * HumanTask Status as defined in HumanTask specifications.
-     *
-     * @See: https://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Ref193112184
-     */
-    public enum State {
-        CREATED,
-        READY,
-        RESERVED,
-        IN_PROGRESS,
-        SUSPENDED,
-        COMPLETED,
-        FAILED,
-        ERROR,
-        EXITED,
-        OBSOLETE,
-        /**
-         * Apply Only for Notifications.
-         */
-        REMOVED,
-    }
-
-    public enum TaskType {
-        /**
-         * <b>task</b> is used to define an inline task within the people activity.
-         */
-        task,
-        /**
-         * <b>localTask</b> is used to refer to a standalone task with no callable Web service interface.
-         */
-        localTask,
-        /**
-         * <b>remoteTask</b> is used to refer to a standalone task offering callable Web service interface.
-         */
-        remoteTask,
-        /**
-         * <b>notification</b> is used to define an inline notification within the people activity.
-         */
-        notification,
-        /**
-         * <b>localNotification</b> is used to refer to a standalone notification with no callable Web service
-         * interface.
-         */
-        localNotification,
-        /**
-         * <b>remoteNotification</b> is used to refer to a standalone notification offering callable Web service
-         * interface.
-         */
-        remoteNotification,
-        /**
-         * <b>leanTask</b> is used to define an leanTask task.
-         */
-        leanTask,
-    }
-
 
     private long taskID;
     private String taskName;
@@ -101,9 +45,9 @@ public class HumanTask {
     private boolean skipable;
     private boolean escalated;
 
-    private State state;
-    private State stateBeforeSuspension;
-    private TaskType taskType;
+    // Following variables are not defined as enum, to support other task implementations.
+    private String state;
+    private String taskType;
 
     private Date activationTime;
     private Date completeByTime;
@@ -121,7 +65,7 @@ public class HumanTask {
     private String businessType;
 
     public HumanTask(long taskID, String taskName, String packageName, String taskDefinitionName, long
-            taskDefinitionVersion, int priority, State state, boolean skipable, boolean escalated, TaskType taskType,
+            taskDefinitionVersion, int priority, String state, boolean skipable, boolean escalated, String taskType,
                      Date activationTime, Date completeByTime, Date expirationTime, Date createdOnTime, long
                              inputMessage, String businessKey, String businessType) {
 
@@ -243,27 +187,19 @@ public class HumanTask {
         this.escalated = escalated;
     }
 
-    public State getState() {
+    public String getState() {
         return state;
     }
 
-    public void setState(State state) {
+    public void setState(String state) {
         this.state = state;
     }
 
-    public State getStateBeforeSuspension() {
-        return stateBeforeSuspension;
-    }
-
-    public void setStateBeforeSuspension(State stateBeforeSuspension) {
-        this.stateBeforeSuspension = stateBeforeSuspension;
-    }
-
-    public TaskType getTaskType() {
+    public String getTaskType() {
         return taskType;
     }
 
-    public void setTaskType(TaskType taskType) {
+    public void setTaskType(String taskType) {
         this.taskType = taskType;
     }
 

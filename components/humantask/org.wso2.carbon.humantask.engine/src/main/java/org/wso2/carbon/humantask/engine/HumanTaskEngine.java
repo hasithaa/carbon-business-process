@@ -20,7 +20,6 @@
 package org.wso2.carbon.humantask.engine;
 
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
-import org.wso2.carbon.humantask.engine.exceptions.EngineRuntimeException;
 import org.wso2.carbon.humantask.engine.runtime.HumanTaskRuntime;
 import org.wso2.carbon.humantask.engine.runtime.audit.HumanTaskAuditor;
 

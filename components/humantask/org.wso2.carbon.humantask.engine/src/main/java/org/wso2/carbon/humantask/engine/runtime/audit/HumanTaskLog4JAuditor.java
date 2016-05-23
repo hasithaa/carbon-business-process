@@ -21,6 +21,7 @@ package org.wso2.carbon.humantask.engine.runtime.audit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.humantask.engine.runtime.Constants;
 
 /**
  * Log4j based auditor.
@@ -29,14 +30,7 @@ public class HumanTaskLog4JAuditor implements HumanTaskAuditor {
 
     private static final Logger log = LoggerFactory.getLogger(HumanTaskLog4JAuditor.class);
 
-    private final static String AUDIT = "AUDIT";
-    private final static String TASKID = "TaskID";
-    private final static String ORIGINATOR = "Originator";
-    private final static String OPERATION = "Operation";
-    private final static String MESSAGE = "Message";
-    private final static String CHAR_OSB = " [";
-    private final static String CHAR_CSB = "] ";
-    private final static String CHAR_EQL = " = ";
+
 
 
     /**
@@ -53,27 +47,27 @@ public class HumanTaskLog4JAuditor implements HumanTaskAuditor {
     public void audit(AuditType auditType, AuditLevel auditLevel, String taskID, String originator, String operation,
                       String message) {
         StringBuilder auditMsg = new StringBuilder();
-        logParam(auditMsg, AUDIT);
+        logParam(auditMsg, Constants.AUDIT);
         logParam(auditMsg, auditLevel.name());
         logParam(auditMsg, auditType.name());
-        logParam(auditMsg, TASKID, taskID);
-        logParam(auditMsg, ORIGINATOR, originator);
-        logParam(auditMsg, OPERATION, operation);
-        logParam(auditMsg, MESSAGE, message);
+        logParam(auditMsg, Constants.TASK_ID, taskID);
+        logParam(auditMsg, Constants.ORIGINATOR, originator);
+        logParam(auditMsg, Constants.OPERATION, operation);
+        logParam(auditMsg, Constants.MESSAGE, message);
         log.info(auditMsg.toString());
     }
 
     private void logParam(StringBuilder auditMsg, String value) {
-        auditMsg.append(CHAR_OSB)
+        auditMsg.append(Constants.CHAR_OSB)
                 .append(value)
-                .append(CHAR_CSB);
+                .append(Constants.CHAR_CSB);
     }
 
     private void logParam(StringBuilder auditMsg, String key, String value) {
-        auditMsg.append(CHAR_OSB)
+        auditMsg.append(Constants.CHAR_OSB)
                 .append(key)
-                .append(CHAR_EQL)
+                .append(Constants.CHAR_EQL)
                 .append(value)
-                .append(CHAR_CSB);
+                .append(Constants.CHAR_CSB);
     }
 }

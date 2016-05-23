@@ -17,7 +17,15 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.exceptions;
+package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
-public class IllegalStateFault {
+import org.wso2.carbon.humantask.engine.runtime.model.HumanTask;
+
+import java.util.List;
+
+public interface TaskLifeCycle {
+
+    HumanTask performOperation(HumanTask task, Operation operation);
+
+    List<String> getSupportedTaskType();
 }

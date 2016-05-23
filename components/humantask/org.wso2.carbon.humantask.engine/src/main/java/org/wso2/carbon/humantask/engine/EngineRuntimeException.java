@@ -17,7 +17,7 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.exceptions;
+package org.wso2.carbon.humantask.engine;
 
 public class EngineRuntimeException extends Exception {
 

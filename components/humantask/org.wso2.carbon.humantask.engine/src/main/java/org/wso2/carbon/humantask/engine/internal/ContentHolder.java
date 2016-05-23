@@ -20,7 +20,7 @@
 package org.wso2.carbon.humantask.engine.internal;
 
 import org.wso2.carbon.humantask.engine.HumanTaskEngine;
-import org.wso2.carbon.humantask.engine.exceptions.EngineRuntimeException;
+import org.wso2.carbon.humantask.engine.EngineRuntimeException;
 
 /**
  * Content Holder for HumanTask component.

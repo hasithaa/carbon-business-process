@@ -37,7 +37,7 @@ import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
 import org.wso2.carbon.humantask.engine.HumanTaskEngineOSGIService;
 import org.wso2.carbon.humantask.engine.config.HumanTaskConfigurationFactory;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
-import org.wso2.carbon.humantask.engine.exceptions.EngineRuntimeException;
+import org.wso2.carbon.humantask.engine.EngineRuntimeException;
 
 /**
  * HumanTask Component.

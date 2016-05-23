@@ -17,27 +17,28 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.exceptions;
+package org.wso2.carbon.humantask.engine.runtime.lifecycle.ws.humantask11;
 
-public class HumanTaskRuntimeException extends RuntimeException {
-
-    public HumanTaskRuntimeException() {
-    }
-
-    public HumanTaskRuntimeException(String message) {
-        super(message);
-    }
-
-    public HumanTaskRuntimeException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public HumanTaskRuntimeException(Throwable cause) {
-        super(cause);
-    }
-
-    public HumanTaskRuntimeException(String message, Throwable cause, boolean enableSuppression, boolean
-            writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+/**
+ * HumanTask Status as defined in HumanTask specifications.
+ *
+ * @See: https://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Ref193112184
+ */
+public enum States {
+    CREATED,
+    READY,
+    RESERVED,
+    IN_PROGRESS,
+    SUSPENDED_READY,
+    SUSPENDED_RESERVED,
+    SUSPENDED_IN_PROGRESS,
+    COMPLETED,
+    FAILED,
+    ERROR,
+    EXITED,
+    OBSOLETE,
+    /**
+     * Apply Only for Notifications.
+     */
+    REMOVED,
 }
