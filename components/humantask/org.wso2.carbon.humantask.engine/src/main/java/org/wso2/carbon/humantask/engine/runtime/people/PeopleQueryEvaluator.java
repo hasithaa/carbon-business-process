@@ -17,7 +17,22 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.api.admin;
+package org.wso2.carbon.humantask.engine.runtime.people;
 
-public interface DeploymentAPI {
+import java.util.List;
+import java.util.Properties;
+
+public interface PeopleQueryEvaluator {
+
+    Properties getProperties();
+
+    void setProperties(Properties properties);
+
+    boolean isExistingUser(String userName);
+
+    boolean isExistingGroup(String roleName);
+
+    List<String> getGroupsOfUser(String userName);
+
+
 }

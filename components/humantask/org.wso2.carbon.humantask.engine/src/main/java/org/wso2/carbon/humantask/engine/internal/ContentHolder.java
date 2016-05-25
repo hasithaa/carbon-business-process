@@ -19,8 +19,17 @@
 
 package org.wso2.carbon.humantask.engine.internal;
 
-import org.wso2.carbon.humantask.engine.HumanTaskEngine;
+import org.wso2.carbon.caching.CarbonCachingService;
 import org.wso2.carbon.humantask.engine.EngineRuntimeException;
+import org.wso2.carbon.humantask.engine.HumanTaskEngine;
+import org.wso2.carbon.security.caas.user.core.service.RealmService;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import javax.cache.spi.CachingProvider;
 
 /**
  * Content Holder for HumanTask component.
@@ -32,6 +41,10 @@ public class ContentHolder {
     private static ContentHolder instance = null;
 
     private HumanTaskEngine taskEngine;
+
+    private RealmService realmService;
+
+    private CarbonCachingService cachingService;
 
     private ContentHolder() {
     }
@@ -55,4 +68,46 @@ public class ContentHolder {
         }
         this.taskEngine = taskEngine;
     }
+
+    public void setRealmService(RealmService carbonRealmService) {
+        this.realmService = carbonRealmService;
+    }
+
+    public RealmService getRealmService() {
+        return realmService;
+    }
+
+    public CarbonCachingService getCachingService() {
+        return cachingService;
+    }
+
+    public void setCachingService(CarbonCachingService cachingService) {
+        this.cachingService = cachingService;
+    }
+
+    public <K, V> Cache<K, V> getCache(String cacheName, Class<K> key, Class<V> value, Duration expiry) {
+        CachingProvider provider = cachingService.getCachingProvider();
+        CacheManager cacheManager = provider.getCacheManager();
+        Cache<K, V> cache = cacheManager.getCache(cacheName, key, value);
+        if (cache == null) {
+            cache = initCache(cacheName, cacheManager, key, value, expiry);
+        }
+        return cache;
+    }
+
+    private <K, V> Cache<K, V> initCache(String name, CacheManager cacheManager, Class<K> key, Class<V> value,
+                                         Duration expiry) {
+
+        //configure the cache
+        MutableConfiguration<K, V> config = new MutableConfiguration<>();
+        config.setStoreByValue(true)
+                .setTypes(key, value)
+                .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(expiry))
+                .setStatisticsEnabled(false);
+
+        //create the cache
+        return cacheManager.createCache(name, config);
+    }
+
+
 }

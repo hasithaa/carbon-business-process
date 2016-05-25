@@ -19,21 +19,23 @@
 
 package org.wso2.carbon.humantask.engine.test;
 
-import org.wso2.carbon.humantask.engine.runtime.PeopleQueryEvaluator;
+import org.wso2.carbon.humantask.engine.runtime.people.PeopleQueryEvaluator;
 
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 
 public class InMemoryPeopleQueryEvaluator implements PeopleQueryEvaluator {
 
-    Map<String, User> users;
+    private Map<String, User> users;
+    private Properties properties;
 
     public InMemoryPeopleQueryEvaluator() {
         this.users = new HashMap<>();
-
+        properties = new Properties();
         // Alex in all 3 groups.
         List<String> all = new ArrayList<>();
         all.add("group1");
@@ -90,6 +92,16 @@ public class InMemoryPeopleQueryEvaluator implements PeopleQueryEvaluator {
     }
 
     @Override
+    public Properties getProperties() {
+        return properties;
+    }
+
+    @Override
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    @Override
     public boolean isExistingUser(String userName) {
         return this.users.containsKey(userName);
     }
@@ -103,7 +115,6 @@ public class InMemoryPeopleQueryEvaluator implements PeopleQueryEvaluator {
     public List<String> getGroupsOfUser(String userName) {
         return this.users.get(userName).groups;
     }
-
 
     class User {
         private String name;

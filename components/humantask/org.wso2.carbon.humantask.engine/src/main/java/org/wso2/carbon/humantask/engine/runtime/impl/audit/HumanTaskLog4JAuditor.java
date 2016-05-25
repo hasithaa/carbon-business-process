@@ -17,11 +17,12 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.audit;
+package org.wso2.carbon.humantask.engine.runtime.impl.audit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.humantask.engine.runtime.Constants;
+import org.wso2.carbon.humantask.engine.runtime.audit.HumanTaskAuditor;
 
 /**
  * Log4j based auditor.

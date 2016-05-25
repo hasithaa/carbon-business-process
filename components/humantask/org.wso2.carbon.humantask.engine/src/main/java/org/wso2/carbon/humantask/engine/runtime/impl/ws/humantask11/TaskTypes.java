@@ -17,7 +17,7 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle.ws.humantask11;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 
 public enum  TaskTypes {
     /**

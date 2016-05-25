@@ -17,7 +17,7 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.model;
+package org.wso2.carbon.humantask.engine.runtime.db.model;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

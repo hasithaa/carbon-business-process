@@ -17,7 +17,7 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle.ws.humantask11;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 
 /**
  * This defines Participant Operations defined in HumanTask Specification 1.1 in section

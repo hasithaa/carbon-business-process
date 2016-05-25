@@ -17,21 +17,16 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.audit;
+package org.wso2.carbon.humantask.engine.runtime.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class UnauthorizedFault extends RuntimeException{
 
-/**
- * JDBC based Audit publisher.
- */
-public class HumanTaskJDBCAuditor implements HumanTaskAuditor {
 
-    private static final Logger log = LoggerFactory.getLogger(HumanTaskJDBCAuditor.class);
+    public UnauthorizedFault(String message) {
+        super(message);
+    }
 
-    @Override
-    public void audit(AuditType auditType, AuditLevel auditLevel, String taskID, String originator, String operation,
-                      String message) {
-        throw new UnsupportedOperationException(HumanTaskJDBCAuditor.class + " is not implemented yet.");
+    public UnauthorizedFault(String message, Throwable cause) {
+        super(message, cause);
     }
 }

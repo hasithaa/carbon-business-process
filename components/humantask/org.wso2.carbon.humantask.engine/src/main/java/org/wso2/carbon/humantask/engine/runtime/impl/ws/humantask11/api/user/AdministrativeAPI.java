@@ -17,17 +17,14 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.api.user;
 
 /**
- * WS-HumanTask 1.1 specific constants.
+ * This defines Administrative Operations defined in HumanTask Specification 1.1 in section
+ * 7.1.4 Administrative Operations.
+ *
+ * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430340">7.1.4
+ * Administrative Operations</a>.
  */
-public final class WSHumanTaskConstants {
-
-    public static final String WS_HUMANTASK_NAMESPACE = "";
-
-    private WSHumanTaskConstants(){
-        throw new AssertionError("Can't create an instance from " + WSHumanTaskConstants.class);
-    }
-
+public interface AdministrativeAPI {
 }

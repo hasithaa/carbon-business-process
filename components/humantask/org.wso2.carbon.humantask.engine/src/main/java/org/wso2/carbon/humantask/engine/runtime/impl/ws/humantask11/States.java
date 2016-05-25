@@ -17,14 +17,28 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.api.user;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 
 /**
- * This defines Participant Operations defined in HumanTask Specification 1.1 in section
- * 7.1.1 Participant Operations.
+ * HumanTask Status as defined in HumanTask specifications.
  *
- * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430337">7.1.1
- * Participant Operations</a>.
+ * @See: https://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Ref193112184
  */
-public interface TaskParticipantAPI {
+public enum States {
+    CREATED,
+    READY,
+    RESERVED,
+    IN_PROGRESS,
+    SUSPENDED_READY,
+    SUSPENDED_RESERVED,
+    SUSPENDED_IN_PROGRESS,
+    COMPLETED,
+    FAILED,
+    ERROR,
+    EXITED,
+    OBSOLETE,
+    /**
+     * Apply Only for Notifications.
+     */
+    REMOVED,
 }

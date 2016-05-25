@@ -17,22 +17,7 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.api.user;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.api.admin;
 
-/**
- * This defines Query Operations defined in HumanTask Specification 1.1 in section
- * 7.1.2 Simple Query Operations and 7.1.3 Advanced Query Operation.
- *
- * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430338">7.1.2 Simple
- * Query Operations</a>.
- * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430339">7.1.3
- * Advanced Query Operation</a>.
- */
-public interface SimpleQueryAPI {
-
-    void start(final String taskID);
-
-    void claim(final String taskID);
-
-
+public interface DeploymentAPI {
 }

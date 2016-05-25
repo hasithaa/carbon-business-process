@@ -17,25 +17,17 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.impl;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 
-import org.wso2.carbon.humantask.engine.runtime.PeopleQueryEvaluator;
+/**
+ * WS-HumanTask 1.1 specific constants.
+ */
+public final class WSHumanTaskConstants {
 
-import java.util.List;
+    public static final String WS_HUMANTASK_NAMESPACE = "";
 
-public class CaasBasedPeopleQueryEvaluator implements PeopleQueryEvaluator {
-    @Override
-    public boolean isExistingUser(String userName) {
-        return false;
+    private WSHumanTaskConstants(){
+        throw new AssertionError("Can't create an instance from " + WSHumanTaskConstants.class);
     }
 
-    @Override
-    public boolean isExistingGroup(String roleName) {
-        return false;
-    }
-
-    @Override
-    public List<String> getGroupsOfUser(String userName) {
-        return null;
-    }
 }

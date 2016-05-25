@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
-import org.wso2.carbon.humantask.engine.runtime.model.HumanTask;
+import org.wso2.carbon.humantask.engine.runtime.db.model.HumanTask;
 
 import java.util.List;
 

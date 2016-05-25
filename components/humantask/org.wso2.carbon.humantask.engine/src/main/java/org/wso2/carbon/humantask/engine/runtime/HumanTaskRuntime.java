@@ -19,7 +19,28 @@
 
 package org.wso2.carbon.humantask.engine.runtime;
 
+import org.wso2.carbon.humantask.engine.runtime.people.PeopleQueryEvaluator;
+
 public class HumanTaskRuntime {
 
+    private PeopleQueryEvaluator peopleQueryEvaluator;
 
+
+    /**
+     * Get People Query Evaluator.
+     *
+     * @return PeopleQueryEvaluator instance.
+     */
+    public PeopleQueryEvaluator getPeopleQueryEvaluator() {
+        return peopleQueryEvaluator;
+    }
+
+    /**
+     * Set People Query Evaluator.
+     *
+     * @param peopleQueryEvaluator instance for retrieving people information.
+     */
+    public void setPeopleQueryEvaluator(PeopleQueryEvaluator peopleQueryEvaluator) {
+        this.peopleQueryEvaluator = peopleQueryEvaluator;
+    }
 }

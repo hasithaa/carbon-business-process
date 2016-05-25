@@ -17,14 +17,14 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.api.user;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.api.user;
 
 /**
- * This defines Administrative Operations defined in HumanTask Specification 1.1 in section
- * 7.1.4 Administrative Operations.
+ * This defines Participant Operations defined in HumanTask Specification 1.1 in section
+ * 7.1.1 Participant Operations.
  *
- * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430340">7.1.4
- * Administrative Operations</a>.
+ * @see <a href="http://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Toc261430337">7.1.1
+ * Participant Operations</a>.
  */
-public interface AdministrativeAPI {
+public interface TaskParticipantAPI {
 }

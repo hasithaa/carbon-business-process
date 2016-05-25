@@ -28,7 +28,6 @@ public class Constants {
     //Properties.
 
 
-
     public final static String AUDIT = "AUDIT";
     public final static String TASK_ID = "TaskID";
     public final static String ORIGINATOR = "Originator";
@@ -43,5 +42,21 @@ public class Constants {
 
     // Various Messages.
     public final static String MSG_NOT_SUPPORTED_AT_STATE = " is not supported at state : ";
+    public final static String MSG_USER_NOT_FOUND = " User not found : ";
+    public final static String MSG_GROUP_NOT_FOUND = " Group not found : ";
+
+    public final static String MSG_IDENTITY_STORE_ERROR = "Unable to retrieve details from Identity Store.";
+    public final static String MSG_USER_PRINCIPLE_NOT_FOUND = "User Principle not found in current context.";
+    public final static String MSG_REALM_NOT_FOUND = "Engine initialization error. Realm Service isn't initialized " +
+            "properly.";
+    public final static String MSG_INVALID_CACHE_EXPIRY_TIME = "Found invalid Cache expiry time. Using Default value " +
+            "900 Seconds (15 minutes) of cache expiry time.";
+
+
+    public static String getTaskIDFormatted(long id) {
+        StringBuilder br = new StringBuilder();
+        br.append(CHAR_OSB).append(TASK_ID).append(CHAR_EQL).append(id).append(CHAR_CSB);
+        return br.toString();
+    }
 
 }

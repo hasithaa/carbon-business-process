@@ -30,14 +30,18 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.jndi.JNDIContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.caching.CarbonCachingService;
 import org.wso2.carbon.datasource.core.api.DataSourceManagementService;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
+import org.wso2.carbon.humantask.engine.EngineRuntimeException;
 import org.wso2.carbon.humantask.engine.HumanTaskEngine;
 import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
 import org.wso2.carbon.humantask.engine.HumanTaskEngineOSGIService;
 import org.wso2.carbon.humantask.engine.config.HumanTaskConfigurationFactory;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
-import org.wso2.carbon.humantask.engine.EngineRuntimeException;
+import org.wso2.carbon.security.caas.user.core.service.RealmService;
+
+import java.util.Map;
 
 /**
  * HumanTask Component.
@@ -72,18 +76,6 @@ public class HumanTaskComponent {
 
             holder.setTaskEngine(engine);
 
-//            // Building HumanTask engine,
-//            holder.setEngine(ActivitiEngineBuilder.getInstance().buildEngine());
-//
-//            HumanTaskEngineOSGIService humanTaskEngineOSGIService = new HumanTaskEngineOSGIServiceImpl();
-//            BPMNEngineServiceImpl bpmnEngineService = new BPMNEngineServiceImpl();
-//            bpmnEngineService
-//                    .setProcessEngine(ActivitiEngineBuilder.getInstance().getProcessEngine());
-//            bpmnEngineService.setCarbonRealmService(IdentityDataHolder.getInstance().getCarbonRealmService());
-//
-//            bundleContext.registerService(HumanTaskEngineOSGIService.class.getName(), humanTaskEngineOSGIService,
-// null);
-
         } catch (Throwable t) {
             log.error("Error initializing HumanTask component " + t);
         }
@@ -102,51 +94,35 @@ public class HumanTaskComponent {
         log.info("HumanTask component is deactivated...");
     }
 
+    //  Set CarbonRealmService
     @Reference(
-            name = "org.wso2.carbon.datasource.jndi.JNDIContextManager",
-            service = JNDIContextManager.class,
-            cardinality = ReferenceCardinality.MANDATORY,
+            name = "org.wso2.carbon.security.CarbonRealmServiceImpl",
+            service = RealmService.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterJNDIContext")
-
-    public void registerJNDIContext(JNDIContextManager contextManager) {
-        log.info("register JNDI Context");
-        this.jndiContextManager = contextManager;
+            unbind = "unregisterCarbonRealm"
+    )
+    public void registerCarbonRealm(RealmService carbonRealmService) {
+        log.info("register CarbonRealmService...");
+        ContentHolder.getInstance().setRealmService(carbonRealmService);
     }
 
-    public void unRegisterJNDIContext(JNDIContextManager contextManager) {
-        log.info("Unregister JNDI Context");
-    }
-
-    @Reference(
-            name = "org.wso2.carbon.datasource.core.api.DataSourceService",
-            service = DataSourceService.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterDataSourceService")
-    public void registerDataSourceService(DataSourceService datasource) {
-        log.info("register DataSource service");
-        this.datasourceService = datasource;
-    }
-
-    public void unRegisterDataSourceService(DataSourceService datasource) {
-        log.info("unregister datasource service");
+    public void unregisterCarbonRealm(RealmService carbonRealmService) {
+        log.info("Unregister CarbonRealmService...");
     }
 
     @Reference(
-            name = "org.wso2.carbon.datasource.core.api.DataSourceManagementService",
-            service = DataSourceManagementService.class,
+            name = "carbon-caching.service",
+            service = CarbonCachingService.class,
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterDataSourceManagementService")
-
-    public void registerDataSourceManagementService(
-            DataSourceManagementService datasourceMgtService) {
-        log.info("register DataSource Management service");
-        this.datasourceManagementService = datasourceMgtService;
+            unbind = "removeCachingService"
+    )
+    protected void addCachingService(CarbonCachingService cachingService, Map<String, ?> properties) {
+        ContentHolder.getInstance().setCachingService(cachingService);
     }
 
-    public void unRegisterDataSourceManagementService(DataSourceManagementService datasource) {
-        log.info("unregister datasource service");
+    protected void removeCachingService(CarbonCachingService cachingService, Map<String, ?> properties) {
+        ContentHolder.getInstance().setCachingService(null);
     }
 }

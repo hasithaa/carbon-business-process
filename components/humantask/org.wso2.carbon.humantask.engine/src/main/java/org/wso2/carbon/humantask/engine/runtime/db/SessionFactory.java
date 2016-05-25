@@ -17,28 +17,13 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle.ws.humantask11;
+package org.wso2.carbon.humantask.engine.runtime.db;
 
-/**
- * HumanTask Status as defined in HumanTask specifications.
- *
- * @See: https://docs.oasis-open.org/bpel4people/ws-humantask-1.1-spec-cs-01.html#_Ref193112184
- */
-public enum States {
-    CREATED,
-    READY,
-    RESERVED,
-    IN_PROGRESS,
-    SUSPENDED_READY,
-    SUSPENDED_RESERVED,
-    SUSPENDED_IN_PROGRESS,
-    COMPLETED,
-    FAILED,
-    ERROR,
-    EXITED,
-    OBSOLETE,
-    /**
-     * Apply Only for Notifications.
-     */
-    REMOVED,
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+
+public class SessionFactory {
+
+    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(new Configuration());
 }

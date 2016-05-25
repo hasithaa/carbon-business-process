@@ -17,12 +17,14 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle.ws.humantask11;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.lifecycle;
 
+import org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.States;
+import org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.TaskTypes;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.Operation;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.State;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.TaskLifeCycle;
-import org.wso2.carbon.humantask.engine.runtime.model.HumanTask;
+import org.wso2.carbon.humantask.engine.runtime.db.model.HumanTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;

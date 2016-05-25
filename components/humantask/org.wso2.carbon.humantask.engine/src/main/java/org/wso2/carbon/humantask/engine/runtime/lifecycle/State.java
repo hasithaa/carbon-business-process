@@ -20,7 +20,7 @@
 package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
 import org.wso2.carbon.humantask.engine.runtime.Constants;
-import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
+import org.wso2.carbon.kernel.context.CarbonContext;
 
 import java.util.Map;
 
@@ -46,9 +46,9 @@ public class State {
         if (this.nextStates.containsKey(operation.getOperationName())) {
             return this.nextStates.get(operation.getOperationName());
         } else {
-            PrivilegedCarbonContext privilegedCarbonContext =
-                    (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
-            Long taskId = (Long) privilegedCarbonContext.getProperty(Constants.TASK_ID);
+            CarbonContext context =
+                    (CarbonContext) CarbonContext.getCurrentContext();
+            Long taskId = (Long) context.getProperty(Constants.TASK_ID);
             throw new IllegalStateFault(taskId.longValue(), operation.getOperationName(), stateName);
         }
     }

@@ -17,13 +17,22 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.db;
+package org.wso2.carbon.humantask.engine.runtime.impl.audit;
 
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.humantask.engine.runtime.audit.HumanTaskAuditor;
 
-public class SessionFactory {
+/**
+ * JDBC based Audit publisher.
+ */
+public class HumanTaskJDBCAuditor implements HumanTaskAuditor {
 
-    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(new Configuration());
+    private static final Logger log = LoggerFactory.getLogger(HumanTaskJDBCAuditor.class);
+
+    @Override
+    public void audit(AuditType auditType, AuditLevel auditLevel, String taskID, String originator, String operation,
+                      String message) {
+        throw new UnsupportedOperationException(HumanTaskJDBCAuditor.class + " is not implemented yet.");
+    }
 }

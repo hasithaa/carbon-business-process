@@ -20,6 +20,7 @@
 package org.wso2.carbon.humantask.engine.test;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.humantask.engine.HumanTaskEngine;
 import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
@@ -28,11 +29,12 @@ import org.wso2.carbon.humantask.engine.internal.ContentHolder;
 
 public class TestHumanTaskEngine {
 
-    @org.testng.annotations.BeforeClass
+    @BeforeClass
     public void setup() throws Exception {
         HumanTaskConfiguration defaultConfig = new HumanTaskConfiguration();
         // Replacing Default values.
-        defaultConfig.setPeopleQueryEvaluator(InMemoryPeopleQueryEvaluator.class.getCanonicalName());
+        defaultConfig.getPeopleQueryConfiguration()
+                .setPeopleQueryEvaluator(InMemoryPeopleQueryEvaluator.class.getCanonicalName());
         defaultConfig.getDataSource().setRunInMemory(true);
 
         // Initializing HumanTask engine.
