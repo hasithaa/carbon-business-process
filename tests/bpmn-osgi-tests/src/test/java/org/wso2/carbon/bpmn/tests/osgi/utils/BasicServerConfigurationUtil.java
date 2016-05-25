@@ -62,6 +62,10 @@ public class BasicServerConfigurationUtil {
                 .artifactId("org.wso2.carbon.messaging")
                 .versionAsInProject());
         optionList.add(mavenBundle()
+                .groupId("org.wso2.carbon.deployment")
+                .artifactId("org.wso2.carbon.deployment.engine")
+                .versionAsInProject());
+        optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.security.caas")
                 .artifactId("org.wso2.carbon.security.caas")
                 .versionAsInProject());
@@ -157,6 +161,17 @@ public class BasicServerConfigurationUtil {
         String currentDir = Paths.get("").toAbsolutePath().toString();
         Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
         return carbonHome;
+    }
+
+    /**
+     * Return Artifacts directory for Test Server.
+     *
+     * @return
+     */
+    public static Path getArtifactHome() {
+        String currentDir = Paths.get("").toAbsolutePath().toString();
+        Path artifactsHome = Paths.get(currentDir, "src", "test", "resources", "artifacts");
+        return artifactsHome;
     }
 
 }
