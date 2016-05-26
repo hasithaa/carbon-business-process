@@ -19,11 +19,13 @@
 
 package org.wso2.carbon.humantask.engine;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
 import org.wso2.carbon.humantask.engine.runtime.HumanTaskRuntime;
 import org.wso2.carbon.humantask.engine.runtime.audit.HumanTaskAuditor;
+import org.wso2.carbon.humantask.engine.runtime.people.PeopleQueryEvaluator;
 
 /**
  * Human Task Engine implementation.
@@ -60,8 +62,26 @@ public class HumanTaskEngineImpl implements HumanTaskEngine {
         if (this.humanTaskEngineConfiguration == null) {
             throw new EngineRuntimeException("Found invalid humantask engine configuration.");
         }
+        taskRuntime = new HumanTaskRuntime();
 
+        // Setting PeopleQuery Eval.
+        String peopleQueryEvaluator = this.humanTaskEngineConfiguration.getPeopleQueryConfiguration()
+                .getPeopleQueryEvaluator();
+        if (peopleQueryEvaluator != null || StringUtils.isEmpty(peopleQueryEvaluator.trim())) {
+            try {
+                PeopleQueryEvaluator pqe = (PeopleQueryEvaluator) Class.forName(peopleQueryEvaluator).newInstance();
+                this.taskRuntime.setPeopleQueryEvaluator(pqe);
+            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                throw new EngineRuntimeException("Unable to create PeopleQueryEvaluator : " + e.getLocalizedMessage()
+                        , e);
+            }
+        } else {
+            throw new EngineRuntimeException("Found null or empty configuration for PeopleQueryEvaluator. Please " +
+                    "review your config.");
+        }
+        // Setting Database runtime.
         //TODO : Implement logic.
+
 
         this.isInitialized = true;
     }

@@ -24,12 +24,13 @@ package org.wso2.carbon.humantask.engine;
  */
 public final class EngineConstants {
 
-    private EngineConstants() {
-        throw new AssertionError("Can't create an instance from " + EngineConstants.class);
-    }
-
     // DataSource and Database related constants.
     public static final String HT_DATASOURCE_NAME = "HumanTaskDS";
     public static final String HT_DATASBASE_NAME = "HumanTaskDB";
+
+    // Config files.
+    public static final String HT_CONFIG_FILE = "humantask-config.yml";
+
+
 
 }

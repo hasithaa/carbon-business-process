@@ -21,9 +21,10 @@ package org.wso2.carbon.humantask.engine.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
 import org.wso2.carbon.humantask.engine.EngineRuntimeException;
+import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
 import java.io.FileInputStream;
@@ -36,44 +37,40 @@ public class HumanTaskConfigurationFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(HumanTaskConfigurationFactory.class);
 
-    private String yamlConfigName;
+    private String yamlConfigFilePath;
 
     /**
      * Default HumanTask Configuration Factory.
      */
     public HumanTaskConfigurationFactory() {
-        yamlConfigName = null;
+        yamlConfigFilePath = null;
     }
 
     /**
      * HumanTask Configuration Factory.
      *
-     * @param yamlConfigName is humantask config yaml file name
+     * @param yamlConfigFilePath is humantask config yaml file name
      */
-    public HumanTaskConfigurationFactory(String yamlConfigName) {
-        this.yamlConfigName = yamlConfigName;
+    public HumanTaskConfigurationFactory(String yamlConfigFilePath) {
+        this.yamlConfigFilePath = yamlConfigFilePath;
     }
 
     public HumanTaskConfiguration build() throws EngineRuntimeException {
-        if (yamlConfigName == null) {
+        if (yamlConfigFilePath == null) {
             return new HumanTaskConfiguration();
         }
         org.wso2.carbon.kernel.utils.Utils.checkSecurity();
-        String configFileLocation = org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve(yamlConfigName)
-                .toString();
-        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
-
+        try {
+            InputStream inputStream = new FileInputStream(yamlConfigFilePath);
             String yamlFileString;
-            try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
-                yamlFileString = scanner.useDelimiter("\\A").next();
-                yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
-            }
-
+            Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name());
+            yamlFileString = scanner.useDelimiter("\\A").next();
+            yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
             Yaml yaml = new Yaml();
             yaml.setBeanAccess(BeanAccess.FIELD);
             return yaml.loadAs(yamlFileString, HumanTaskConfiguration.class);
-        } catch (IOException e) {
-            String errorMessage = "Failed populate HumanTaskConfiguration from " + configFileLocation;
+        } catch (IOException | YAMLException e) {
+            String errorMessage = "Failed populate HumanTaskConfiguration from " + yamlConfigFilePath;
             throw new EngineRuntimeException(errorMessage, e);
         }
     }

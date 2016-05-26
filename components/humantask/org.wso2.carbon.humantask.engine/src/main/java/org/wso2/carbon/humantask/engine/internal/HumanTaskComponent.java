@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.caching.CarbonCachingService;
 import org.wso2.carbon.datasource.core.api.DataSourceManagementService;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
+import org.wso2.carbon.humantask.engine.EngineConstants;
 import org.wso2.carbon.humantask.engine.EngineRuntimeException;
 import org.wso2.carbon.humantask.engine.HumanTaskEngine;
 import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
@@ -64,13 +65,16 @@ public class HumanTaskComponent {
         try {
             this.bundleContext = ctxt.getBundleContext();
             ContentHolder holder = ContentHolder.getInstance();
-
-            // TODO : Read config from yaml.
-            HumanTaskConfigurationFactory configurationFactory = new HumanTaskConfigurationFactory();
+            String configFileLocation = org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve
+                    (EngineConstants.HT_CONFIG_FILE)
+                    .toString();
+            if (log.isDebugEnabled()) {
+                log.debug("Reading HumanTask engine configuration from : " + configFileLocation);
+            }
+            HumanTaskConfigurationFactory configurationFactory = new HumanTaskConfigurationFactory(configFileLocation);
             HumanTaskConfiguration humanTaskConfiguration = configurationFactory.build();
 
             HumanTaskEngine engine = new HumanTaskEngineImpl();
-
             engine.setEngineConfiguration(humanTaskConfiguration);
             engine.init();
 

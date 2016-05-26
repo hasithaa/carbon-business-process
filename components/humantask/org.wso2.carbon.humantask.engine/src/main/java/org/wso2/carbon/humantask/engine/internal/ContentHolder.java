@@ -62,7 +62,7 @@ public class ContentHolder {
 
 
     public synchronized void setTaskEngine(HumanTaskEngine taskEngine) throws EngineRuntimeException {
-        if (this.taskEngine != null && taskEngine.isEngineRunning()) {
+        if (this.taskEngine != null && this.taskEngine.isEngineRunning()) {
             throw new EngineRuntimeException("Can't set a new task engine instance, since old instance is still " +
                     "running. Shutdown existing instance first.");
         }

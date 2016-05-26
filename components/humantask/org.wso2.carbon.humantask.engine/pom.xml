@@ -186,7 +186,7 @@
                     <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
                     <excludes>
                         <!-- Excluding auto generated sources. -->
-                        <exclude>**/humantask/model/**</exclude>
+                        <exclude>**/org/wso2/carbon/humantask/model/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

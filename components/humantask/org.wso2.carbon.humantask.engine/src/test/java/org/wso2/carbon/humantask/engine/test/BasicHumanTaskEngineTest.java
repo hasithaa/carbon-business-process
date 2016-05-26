@@ -20,14 +20,17 @@
 package org.wso2.carbon.humantask.engine.test;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.humantask.engine.EngineRuntimeException;
 import org.wso2.carbon.humantask.engine.HumanTaskEngine;
 import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
 import org.wso2.carbon.humantask.engine.internal.ContentHolder;
 
-public class TestHumanTaskEngine {
+public class BasicHumanTaskEngineTest
+{
 
     @BeforeClass
     public void setup() throws Exception {
@@ -49,5 +52,11 @@ public class TestHumanTaskEngine {
         ContentHolder.getInstance().getTaskEngine().start();
         Assert.assertTrue(ContentHolder.getInstance().getTaskEngine().isEngineRunning(), "Can't Start HumanTask " +
                 "Engine.");
+    }
+
+    @AfterClass
+    public void teardown() throws EngineRuntimeException {
+        ContentHolder.getInstance().getTaskEngine().destroy();
+        ContentHolder.getInstance().setTaskEngine(null);
     }
 }

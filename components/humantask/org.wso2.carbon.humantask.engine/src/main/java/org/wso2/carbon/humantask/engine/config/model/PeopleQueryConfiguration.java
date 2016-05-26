@@ -36,7 +36,6 @@ public class PeopleQueryConfiguration {
     public PeopleQueryConfiguration() {
         peopleQueryEvaluator = CaasBasedPeopleQueryEvaluator.class.getCanonicalName();
         properties = new HashMap();
-        properties.put(CaasBasedPeopleQueryEvaluator.CHECK_USER_EXISTENCE, "false");
     }
 
     public String getPeopleQueryEvaluator() {
