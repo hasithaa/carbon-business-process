@@ -21,33 +21,33 @@ package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 
 public enum  TaskTypes {
     /**
-     * <b>TASK</b> is used to define an inline task within the people activity.
+     * <b>WS_HT11_TASK</b> is used to define an inline task within the people activity.
      */
-    TASK,
+    WS_HT11_TASK,
     /**
-     * <b>LOCAL_TASK</b> is used to refer to a standalone task with no callable Web service interface.
+     * <b>WS_HT11_LOCAL_TASK</b> is used to refer to a standalone task with no callable Web service interface.
      */
-    LOCAL_TASK,
+    WS_HT11_LOCAL_TASK,
     /**
-     * <b>REMOTE_TASK</b> is used to refer to a standalone task offering callable Web service interface.
+     * <b>WS_HT11_REMOTE_TASK</b> is used to refer to a standalone task offering callable Web service interface.
      */
-    REMOTE_TASK,
+    WS_HT11_REMOTE_TASK,
     /**
-     * <b>NOTIFICATION</b> is used to define an inline notification within the people activity.
+     * <b>WS_HT11_NOTIFICATION</b> is used to define an inline notification within the people activity.
      */
-    NOTIFICATION,
+    WS_HT11_NOTIFICATION,
     /**
-     * <b>LOCAL_NOTIFICATION</b> is used to refer to a standalone notification with no callable Web service
+     * <b>WS_HT11_LOCAL_NOTIFICATION</b> is used to refer to a standalone notification with no callable Web service
      * interface.
      */
-    LOCAL_NOTIFICATION,
+    WS_HT11_LOCAL_NOTIFICATION,
     /**
-     * <b>REMOTE_NOTIFICATION</b> is used to refer to a standalone notification offering callable Web service
+     * <b>WS_HT11_REMOTE_NOTIFICATION</b> is used to refer to a standalone notification offering callable Web service
      * interface.
      */
-    REMOTE_NOTIFICATION,
+    WS_HT11_REMOTE_NOTIFICATION,
     /**
-     * <b>LEAN_TASK</b> is used to define an leanTask task.
+     * <b>WS_HT11_LEAN_TASK</b> is used to define an leanTask task.
      */
-    LEAN_TASK,
+    WS_HT11_LEAN_TASK,
 }

@@ -41,4 +41,8 @@ public enum States {
      * Apply Only for Notifications.
      */
     REMOVED,
+    /**
+     * Additional State, which used to indicate no state transition.
+     */
+    NO_CHANGE,
 }

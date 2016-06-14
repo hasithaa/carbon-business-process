@@ -24,7 +24,7 @@ import org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.TaskTypes;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.Operation;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.State;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.TaskLifeCycle;
-import org.wso2.carbon.humantask.engine.runtime.db.model.HumanTask;
+import org.wso2.carbon.humantask.engine.runtime.persistance.entity.HumanTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,10 +95,10 @@ public class WSHumanTask11LifeCycle implements TaskLifeCycle {
 
         // Defining Supported Task Types
         this.supportedTasks = new ArrayList<>();
-        supportedTasks.add(TaskTypes.TASK.name());
-        supportedTasks.add(TaskTypes.REMOTE_TASK.name());
-        supportedTasks.add(TaskTypes.LOCAL_TASK.name());
-        supportedTasks.add(TaskTypes.LEAN_TASK.name());
+        supportedTasks.add(TaskTypes.WS_HT11_TASK.name());
+        supportedTasks.add(TaskTypes.WS_HT11_REMOTE_TASK.name());
+        supportedTasks.add(TaskTypes.WS_HT11_LOCAL_TASK.name());
+        supportedTasks.add(TaskTypes.WS_HT11_LEAN_TASK.name());
     }
 
     public static WSHumanTask11LifeCycle getInstance() {
