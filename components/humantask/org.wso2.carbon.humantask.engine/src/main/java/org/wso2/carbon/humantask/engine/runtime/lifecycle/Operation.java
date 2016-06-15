@@ -19,20 +19,77 @@
 
 package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
-import org.wso2.carbon.humantask.engine.runtime.db.model.HumanTask;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface Operation {
+public class Operation {
 
-    boolean isBatchSupported();
+    private boolean isBatchSupported;
+    private boolean stateFullOperation;
+    private String operationName;
+    private Map<State, State> nextStates;
 
-    void setTask(HumanTask task);
+    public Operation(String name) {
+        this.operationName = name;
+        this.isBatchSupported = false;
+        this.stateFullOperation = false;
+        this.nextStates = new HashMap<>();
+    }
 
-    void setInput(Object input);
+    public Operation(String name, boolean isBatchSupported) {
+        this.operationName = name;
+        this.isBatchSupported = isBatchSupported;
+        this.stateFullOperation = false;
+        this.nextStates = new HashMap<>();
+    }
 
-    Object getResult();
+    public Operation(String name, boolean isBatchSupported, boolean stateFullOperation) {
+        this.operationName = name;
+        this.isBatchSupported = isBatchSupported;
+        this.stateFullOperation = stateFullOperation;
+        this.nextStates = new HashMap<>();
+    }
 
-    String getOperationName();
+    public void addNextState(State current, State next) {
+        current.addStatefullOperation(this);
+        this.nextStates.put(current, next);
+    }
 
-    void execute();
+    public void addSupportedStates(Collection<State> states) {
+        for (State state : states) {
+           addSupportedState(state);
+        }
+    }
+
+    public void addSupportedState(State state){
+        state.addSupportedOperation(this);
+    }
+
+    public boolean isBatchSupported() {
+        return isBatchSupported;
+    }
+
+    public boolean isStateFullOperation() {
+        return stateFullOperation;
+    }
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    /**
+     * Return next state, when this operation is applied on current state.
+     *
+     * @param currentState current state.
+     * @return next state, return null if current state is invalid for this operation.
+     */
+    public State getNextState(State currentState) {
+        if (currentState == null) {
+            return null;
+        }
+        return stateFullOperation ? this.nextStates.get(currentState) :
+                (currentState.isEndState() ? currentState : null);
+    }
 
 }

@@ -19,13 +19,12 @@
 
 package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
-import org.wso2.carbon.humantask.engine.runtime.db.model.HumanTask;
-
 import java.util.List;
 
 public interface TaskLifeCycle {
 
-    HumanTask performOperation(HumanTask task, Operation operation);
 
     List<String> getSupportedTaskType();
+
+    State getStartingState();
 }

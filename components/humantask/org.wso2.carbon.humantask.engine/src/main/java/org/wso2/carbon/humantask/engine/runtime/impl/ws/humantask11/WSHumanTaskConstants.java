@@ -25,6 +25,7 @@ package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 public final class WSHumanTaskConstants {
 
     public static final String WS_HUMANTASK_NAMESPACE = "";
+    public static final String WS_HUMANTASK_SPECIFICATION = "ws-humantask-1.0";
 
     private WSHumanTaskConstants(){
         throw new AssertionError("Can't create an instance from " + WSHumanTaskConstants.class);

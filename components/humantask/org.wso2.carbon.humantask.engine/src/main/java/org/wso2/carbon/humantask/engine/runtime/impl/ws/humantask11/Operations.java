@@ -28,6 +28,7 @@ package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
  */
 public enum Operations {
 
+    // WS-HumanTask 1.1 specif commands.
     addAttachment,
     addComment,
     claim,
@@ -76,4 +77,9 @@ public enum Operations {
     suspend,
     suspendUntil,
     updateComment,
+
+    // Task server specif operations.
+    activate,
+    nominate,
+    setGenericHumanRole,
 }
