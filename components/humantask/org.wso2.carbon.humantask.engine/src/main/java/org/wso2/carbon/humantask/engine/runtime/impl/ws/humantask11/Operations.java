@@ -45,6 +45,8 @@ public enum Operations {
     getComments,
     getFault,
     getInput,
+    getMyTaskAbstracts,
+    getMyTaskDetails,
     getOutcome,
     getOutput,
     getParentTask,

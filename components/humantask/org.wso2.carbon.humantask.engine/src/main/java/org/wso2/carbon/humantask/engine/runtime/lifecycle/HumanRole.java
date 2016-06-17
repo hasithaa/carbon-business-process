@@ -19,20 +19,23 @@
 
 package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
-import java.util.Set;
+public class HumanRole {
 
-public interface TaskLifeCycle {
+    private final int id;
+    private final String name;
+
+    public HumanRole(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
 
 
-    Set<String> getSupportedTaskType();
-
-    State getStartingState();
-
-    Set<String> getSupportedTaskStates();
-
-    Set<String> getSupportedTaskOperations();
-
-    Set<String> getSupportedHumanRoles();
-
-    void validateRuntimeModel();
 }

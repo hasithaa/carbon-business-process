@@ -19,51 +19,76 @@
 
 package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
+import org.wso2.carbon.humantask.engine.runtime.scheduler.command.Command;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Operation {
 
-    private boolean isBatchSupported;
-    private boolean stateFullOperation;
-    private String operationName;
-    private Map<State, State> nextStates;
+    private final int id;
+    private final boolean isBatchSupported;
+    private final boolean stateFullOperation;
+    private final String operationName;
+    private Map<Integer, Integer> nextStates;
+    private List<Integer> allowedHumanRole;
+    private List<Integer> excludedHumanRole;
+    private Class<Command> executor;
 
-    public Operation(String name) {
+    public Operation(int id, String name) {
+        this.id = id;
         this.operationName = name;
         this.isBatchSupported = false;
         this.stateFullOperation = false;
         this.nextStates = new HashMap<>();
+        allowedHumanRole = new ArrayList<>();
+        excludedHumanRole = new ArrayList<>();
     }
 
-    public Operation(String name, boolean isBatchSupported) {
+    public Operation(int id, String name, boolean isBatchSupported) {
+        this.id = id;
         this.operationName = name;
         this.isBatchSupported = isBatchSupported;
         this.stateFullOperation = false;
         this.nextStates = new HashMap<>();
+        allowedHumanRole = new ArrayList<>();
+        excludedHumanRole = new ArrayList<>();
     }
 
-    public Operation(String name, boolean isBatchSupported, boolean stateFullOperation) {
+    public Operation(int id, String name, boolean isBatchSupported, boolean stateFullOperation) {
+        this.id = id;
         this.operationName = name;
         this.isBatchSupported = isBatchSupported;
         this.stateFullOperation = stateFullOperation;
         this.nextStates = new HashMap<>();
+        allowedHumanRole = new ArrayList<>();
+        excludedHumanRole = new ArrayList<>();
     }
 
     public void addNextState(State current, State next) {
-        current.addStatefullOperation(this);
-        this.nextStates.put(current, next);
+//        current.addStatefullOperation(this);
+        this.nextStates.put(current.getId(), next.getId());
+        this.addSupportedStates(current);
     }
 
     public void addSupportedStates(Collection<State> states) {
-        for (State state : states) {
-           addSupportedState(state);
-        }
+        states.stream().forEach(aState -> aState.addSupportedOperation(this));
     }
 
-    public void addSupportedState(State state){
-        state.addSupportedOperation(this);
+    public void addSupportedStates(State... state) {
+        Arrays.stream(state).forEach(aState -> aState.addSupportedOperation(this));
+    }
+
+    public void setAllowedHumanRole(HumanRole... role) {
+        Arrays.stream(role).forEach(a -> allowedHumanRole.add(a.getId()));
+    }
+
+    public void setExcludedHumanRole(HumanRole... role) {
+        Arrays.stream(role).forEach(a -> excludedHumanRole.add(a.getId()));
     }
 
     public boolean isBatchSupported() {
@@ -82,14 +107,25 @@ public class Operation {
      * Return next state, when this operation is applied on current state.
      *
      * @param currentState current state.
-     * @return next state, return null if current state is invalid for this operation.
+     * @return next state, return negative if current state is invalid for this operation.
      */
-    public State getNextState(State currentState) {
+    public int getNextState(State currentState) {
         if (currentState == null) {
-            return null;
+            return -1;
         }
-        return stateFullOperation ? this.nextStates.get(currentState) :
-                (currentState.isEndState() ? currentState : null);
+        return stateFullOperation ? this.nextStates.get(currentState.getId()) :
+                (currentState.isEndState() ? currentState.getId() : -1);
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public Class<Command> getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(Class<Command> executor) {
+        this.executor = executor;
+    }
 }

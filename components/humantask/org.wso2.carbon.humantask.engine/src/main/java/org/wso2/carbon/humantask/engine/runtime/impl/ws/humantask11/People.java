@@ -17,22 +17,18 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle;
+package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 
-import java.util.Set;
+/**
+ *
+ */
+public enum People {
 
-public interface TaskLifeCycle {
-
-
-    Set<String> getSupportedTaskType();
-
-    State getStartingState();
-
-    Set<String> getSupportedTaskStates();
-
-    Set<String> getSupportedTaskOperations();
-
-    Set<String> getSupportedHumanRoles();
-
-    void validateRuntimeModel();
+    TaskInitiator,
+    TaskStakeholders,
+    PotentialOwners,
+    ActualOwner,
+    BusinessAdministrator,
+    NotificationRecipients,
+    ExcludedOwner,
 }

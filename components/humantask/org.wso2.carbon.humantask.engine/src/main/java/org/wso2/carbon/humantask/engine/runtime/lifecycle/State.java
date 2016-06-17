@@ -24,30 +24,33 @@ import java.util.List;
 
 public class State {
 
+    private final int id;
     private final String stateName;
     private final boolean endState;
-    private final List<Operation> statefulOperations;
-    private final List<Operation> supportedOperations;
+//    private final List<Integer> statefulOperations;
+    private final List<Integer> supportedOperations;
 
-    public State(String stateName, boolean isEndingState) {
+    public State(int id, String stateName, boolean isEndingState) {
+        this.id = id;
         if (stateName != null) {
             this.stateName = stateName;
         } else {
             this.stateName = "INVALID";
         }
         this.endState = isEndingState;
-        this.statefulOperations = new ArrayList<>();
+//        this.statefulOperations = new ArrayList<>();
         this.supportedOperations = new ArrayList<>();
     }
 
-    public State(String stateName) {
+    public State(int id, String stateName) {
+        this.id = id;
         if (stateName != null) {
             this.stateName = stateName;
         } else {
             this.stateName = "INVALID";
         }
         this.endState = false;
-        this.statefulOperations = new ArrayList<>();
+        //this.statefulOperations = new ArrayList<>();
         this.supportedOperations = new ArrayList<>();
     }
 
@@ -59,32 +62,36 @@ public class State {
         return endState;
     }
 
-    protected void addStatefullOperation(Operation operation) {
-        this.statefulOperations.add(operation);
-    }
+//    protected void addStatefullOperation(Operation operation) {
+//        this.statefulOperations.add(operation.getId());
+//    }
 
     protected void addSupportedOperation(Operation operation) {
-        this.supportedOperations.add(operation);
+        this.supportedOperations.add(operation.getId());
     }
 
     /**
      * Get Next state for given operation.
      *
      * @param operation Operation name.
-     * @return Next State. Return null if given operation is invalid or not supported by current state.
+     * @return Next State. Return negative value if given operation is invalid or not supported by current state.
      */
-    public State getNextState(Operation operation) {
+    public int getNextState(Operation operation) {
         if (operation == null || !supportedOperations.contains(operation)) {
-            return null;
+            return -1;
         }
         if (!operation.isStateFullOperation() && endState) {
             // Operation is stateless and This is an end state. No state transitions.
-            return this;
+            return -1;
         }
         return operation.getNextState(this);
     }
 
-    public List<Operation> getStatefulOperations() {
-        return statefulOperations;
+//    public List<Integer> getStatefulOperations() {
+//        return statefulOperations;
+//    }
+
+    public int getId() {
+        return id;
     }
 }
