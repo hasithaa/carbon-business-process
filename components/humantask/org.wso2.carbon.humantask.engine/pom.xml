@@ -77,6 +77,41 @@
             <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
         </dependency>
 
+        <!-- XML and JSON dependencies -->
+        <dependency>
+            <groupId>org.wso2.orbit.com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>com.jayway.jsonpath.wso2</groupId>-->
+        <!--<artifactId>json-path</artifactId>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>net.minidev</groupId>-->
+        <!--<artifactId>json-smart</artifactId>-->
+        <!--<version>${minidev.json-smart.version}</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom.wso2</groupId>
+            <artifactId>axiom</artifactId>
+        </dependency>
+
         <!-- Other Dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -90,10 +125,7 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom.wso2</groupId>
-            <artifactId>axiom</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -138,15 +170,16 @@
                 <version>2.2</version>
                 <executions>
                     <execution>
-                        <id>ws-humantask-types</id>
+                        <id>ws-humantask-types-and-api</id>
                         <goals>
                             <goal>xjc</goal>
                         </goals>
                         <configuration>
                             <sources>
                                 <source>${project.basedir}/src/main/resources/schema/ws-humantask-types.xsd</source>
+                                <source>${project.basedir}/src/main/resources/schema/ws-humantask-api.xsd</source>
                             </sources>
-                            <packageName>org.wso2.carbon.humantask.model.types</packageName>
+                            <packageName>org.wso2.carbon.humantask.model.api</packageName>
                             <clearOutputDir>false</clearOutputDir>
                         </configuration>
                     </execution>
@@ -159,20 +192,7 @@
                             <sources>
                                 <source>${project.basedir}/src/main/resources/schema/ws-humantask.xsd</source>
                             </sources>
-                            <packageName>org.wso2.carbon.humantask.model</packageName>
-                            <clearOutputDir>false</clearOutputDir>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>ws-humantask-context</id>
-                        <goals>
-                            <goal>xjc</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.basedir}/src/main/resources/schema/ws-humantask-context.xsd</source>
-                            </sources>
-                            <packageName>org.wso2.carbon.humantask.model.context</packageName>
+                            <packageName>org.wso2.carbon.humantask.model.definition</packageName>
                             <clearOutputDir>false</clearOutputDir>
                         </configuration>
                     </execution>
