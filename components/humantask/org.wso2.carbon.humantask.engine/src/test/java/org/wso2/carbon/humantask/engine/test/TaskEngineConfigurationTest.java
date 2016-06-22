@@ -34,6 +34,22 @@ import java.util.HashMap;
 
 public class TaskEngineConfigurationTest {
 
+    public static HumanTaskConfiguration buildTestServerConfig() {
+        HumanTaskConfiguration conf = new HumanTaskConfiguration();
+        conf.setEngineId("test-engine");
+        conf.setName("test engine");
+        conf.setPeopleQueryConfiguration(new PeopleQueryConfiguration());
+        conf.getPeopleQueryConfiguration().setPeopleQueryEvaluator(InMemoryPeopleQueryEvaluator.class
+                .getCanonicalName());
+        conf.getPeopleQueryConfiguration().setProperties(new HashMap<>());
+        conf.setDataSource(new DataSource());
+        conf.getDataSource().setRunInMemory(true);
+        conf.getDataSource().setHumanTaskDataSource("NotRequired.");
+        conf.getDataSource().setAuditDataSource("NotRequired.");
+        conf.getDataSource().setHistoryDataSource("NotRequired.");
+        return conf;
+    }
+
     @Test
     public void readConfigDefault() throws EngineRuntimeException {
         HumanTaskConfigurationFactory configurationFactory = new HumanTaskConfigurationFactory();
@@ -49,7 +65,12 @@ public class TaskEngineConfigurationTest {
         Assert.assertEquals(conf.getPeopleQueryConfiguration().getProperties().size(), 0,
                 "getPeopleQueryConfiguration().getProperties()");
         Assert.assertFalse(conf.getDataSource().isRunInMemory(), "getDataSource().isRunInMemory()");
-        Assert.assertEquals(conf.getDataSource().getJndiName(), "HumanTaskDS", "getDataSource().getJndiName()");
+        Assert.assertEquals(conf.getDataSource().getHumanTaskDataSource(), "HumanTask", "getDataSource()" +
+                ".getHumanTaskDataSource()");
+        Assert.assertEquals(conf.getDataSource().getAuditDataSource(), "HumanTaskAudit", "getDataSource()" +
+                ".getAuditDataSource()");
+        Assert.assertEquals(conf.getDataSource().getHistoryDataSource(), "HumanTaskHistory", "getDataSource()" +
+                ".getHistoryDataSource()");
     }
 
     @Test
@@ -99,7 +120,12 @@ public class TaskEngineConfigurationTest {
                 "().get");
 
         Assert.assertFalse(conf.getDataSource().isRunInMemory(), "getDataSource().isRunInMemory()");
-        Assert.assertEquals(conf.getDataSource().getJndiName(), "HumanTaskDSYml", "getDataSource().getJndiName()");
+        Assert.assertEquals(conf.getDataSource().getHumanTaskDataSource(), "HumanTask", "getDataSource()" +
+                ".getHumanTaskDataSource()");
+        Assert.assertEquals(conf.getDataSource().getAuditDataSource(), "HumanTaskAudit", "getDataSource()" +
+                ".getAuditDataSource()");
+        Assert.assertEquals(conf.getDataSource().getHistoryDataSource(), "HumanTaskHistory", "getDataSource()" +
+                ".getHistoryDataSource()");
     }
 
     @Test(expectedExceptions = EngineRuntimeException.class)
@@ -119,20 +145,6 @@ public class TaskEngineConfigurationTest {
     public void manualConfigCreationTest() {
         HumanTaskConfiguration conf = buildTestServerConfig();
         Assert.assertNotNull(conf);
-    }
-
-    public static HumanTaskConfiguration buildTestServerConfig() {
-        HumanTaskConfiguration conf = new HumanTaskConfiguration();
-        conf.setEngineId("test-engine");
-        conf.setName("test engine");
-        conf.setPeopleQueryConfiguration(new PeopleQueryConfiguration());
-        conf.getPeopleQueryConfiguration().setPeopleQueryEvaluator(InMemoryPeopleQueryEvaluator.class
-                .getCanonicalName());
-        conf.getPeopleQueryConfiguration().setProperties(new HashMap<>());
-        conf.setDataSource(new DataSource());
-        conf.getDataSource().setRunInMemory(true);
-        conf.getDataSource().setJndiName("NotRequired.");
-        return conf;
     }
 
 

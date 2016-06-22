@@ -49,5 +49,9 @@ dataSource:
   # Only for demostation perpose only. To run in persisted mode, set runInMemory = false.
   runInMemory: false
 
-  # JNDI Name of the HumanTask Datasource. Only effects when runs only in persisted mode. ( runInMemory = false )
-  jndiName: HumanTaskDSYml
+  # Datasource Name of the HumanTask Datasource. Only effects when runs only in persisted mode. ( runInMemory = false )
+  humanTaskDataSource: HumanTask
+  # Audit and Event DataSource
+  auditDataSource: HumanTaskAudit
+  # History DataSource
+  historyDataSource: HumanTaskHistory

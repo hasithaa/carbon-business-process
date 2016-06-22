@@ -29,8 +29,7 @@ import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
 import org.wso2.carbon.humantask.engine.internal.ContentHolder;
 
-public class BasicHumanTaskEngineTest
-{
+public class BasicHumanTaskEngineTest {
 
     @BeforeClass
     public void setup() throws Exception {

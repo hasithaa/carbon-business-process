@@ -26,7 +26,23 @@ public class DataSource {
 
     private boolean runInMemory = false;
 
-    private String jndiName = "HumanTaskDS";
+    /**
+     * HumanTask engine DataSource
+     */
+    private String humanTaskDataSource = "HumanTask";
+    /**
+     * Audit and Event DataSource
+     */
+    private String auditDataSource = "HumanTaskAudit";
+    /**
+     * History DataSource
+     */
+    private String historyDataSource = "HumanTaskHistory";
+
+    /***
+     * Getter and Setters.
+     ***/
+
 
     public boolean isRunInMemory() {
         return runInMemory;
@@ -36,11 +52,27 @@ public class DataSource {
         this.runInMemory = runInMemory;
     }
 
-    public String getJndiName() {
-        return jndiName;
+    public String getHumanTaskDataSource() {
+        return humanTaskDataSource;
     }
 
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
+    public void setHumanTaskDataSource(String humanTaskDataSource) {
+        this.humanTaskDataSource = humanTaskDataSource;
+    }
+
+    public String getAuditDataSource() {
+        return auditDataSource;
+    }
+
+    public void setAuditDataSource(String auditDataSource) {
+        this.auditDataSource = auditDataSource;
+    }
+
+    public String getHistoryDataSource() {
+        return historyDataSource;
+    }
+
+    public void setHistoryDataSource(String historyDataSource) {
+        this.historyDataSource = historyDataSource;
     }
 }
