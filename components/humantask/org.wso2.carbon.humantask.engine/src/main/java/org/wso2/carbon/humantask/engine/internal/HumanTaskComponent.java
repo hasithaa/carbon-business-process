@@ -27,17 +27,15 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.jndi.JNDIContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.caching.CarbonCachingService;
-import org.wso2.carbon.datasource.core.api.DataSourceManagementService;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.humantask.engine.EngineConstants;
 import org.wso2.carbon.humantask.engine.EngineRuntimeException;
 import org.wso2.carbon.humantask.engine.HumanTaskEngine;
 import org.wso2.carbon.humantask.engine.HumanTaskEngineImpl;
-import org.wso2.carbon.humantask.engine.HumanTaskEngineOSGIService;
+import org.wso2.carbon.humantask.engine.HumanTaskEngineOSGIServiceImpl;
 import org.wso2.carbon.humantask.engine.config.HumanTaskConfigurationFactory;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
 import org.wso2.carbon.security.caas.user.core.service.RealmService;
@@ -49,19 +47,17 @@ import java.util.Map;
  */
 @Component(
         name = "org.wso2.carbon.humantask.engine.internal.HumanTaskComponent",
-        service = HumanTaskEngineOSGIService.class,
+        service = HumanTaskEngineOSGIServiceImpl.class,
         immediate = true)
 public class HumanTaskComponent {
 
     private static final Logger log = LoggerFactory.getLogger(HumanTaskComponent.class);
-    private DataSourceService datasourceService;
-    private DataSourceManagementService datasourceManagementService;
-    private JNDIContextManager jndiContextManager;
     private BundleContext bundleContext;
+
 
     @Activate
     protected void activate(ComponentContext ctxt) {
-        log.info("BPMN core component activator...");
+        log.info("HumanTask core component activator...");
         try {
             this.bundleContext = ctxt.getBundleContext();
             ContentHolder holder = ContentHolder.getInstance();
@@ -107,7 +103,6 @@ public class HumanTaskComponent {
             unbind = "unregisterCarbonRealm"
     )
     public void registerCarbonRealm(RealmService carbonRealmService) {
-        log.info("register CarbonRealmService...");
         ContentHolder.getInstance().setRealmService(carbonRealmService);
     }
 
@@ -129,4 +124,21 @@ public class HumanTaskComponent {
     protected void removeCachingService(CarbonCachingService cachingService, Map<String, ?> properties) {
         ContentHolder.getInstance().setCachingService(null);
     }
+
+    @Reference(
+            name = "org.wso2.carbon.datasource.core.api.DataSourceService",
+            service = DataSourceService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unRegisterDataSourceService")
+    public void registerDataSourceService(DataSourceService dataSourceService) {
+        ContentHolder.getInstance().setDataSourceService(dataSourceService);
+    }
+
+    public void unRegisterDataSourceService(DataSourceService dataSourceService) {
+        ContentHolder.getInstance().setDataSourceService(null);
+    }
+
+
+
 }

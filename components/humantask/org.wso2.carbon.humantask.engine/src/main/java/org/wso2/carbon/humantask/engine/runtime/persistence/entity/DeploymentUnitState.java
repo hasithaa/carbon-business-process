@@ -17,24 +17,27 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle;
+package org.wso2.carbon.humantask.engine.runtime.persistence.entity;
 
-import java.util.Set;
-
-public interface TaskLifeCycle {
-
-
-    Set<String> getSupportedTaskType();
-
-    State getStartingState();
-
-    Set<String> getSupportedTaskStates();
-
-    Set<String> getSupportedTaskOperations();
-
-    Set<String> getSupportedHumanRoles();
-
-    void validateRuntimeModel();
-
-    boolean isSupportedTask(String taskType);
+public enum DeploymentUnitState {
+    /**
+     * Represents Active Deployment Unit.
+     */
+    ACTIVE,
+    /**
+     * Represent Retired Deployment Unit.
+     */
+    RETIRED,
+    /**
+     * Represent Erroneous Deployment Unit.
+     */
+    ERROR,
+    /**
+     * Represent Deployment Units, which are being un-deploying from the system.
+     */
+    UNDEPLOYING,
+    /**
+     * Represent Deployment Units, which are being deploying from the system.
+     */
+    DEPLOYING,
 }

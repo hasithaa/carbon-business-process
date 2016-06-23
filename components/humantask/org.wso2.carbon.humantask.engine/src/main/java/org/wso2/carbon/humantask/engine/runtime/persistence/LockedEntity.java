@@ -17,24 +17,9 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle;
+package org.wso2.carbon.humantask.engine.runtime.persistence;
 
-import java.util.Set;
-
-public interface TaskLifeCycle {
+public interface LockedEntity {
 
 
-    Set<String> getSupportedTaskType();
-
-    State getStartingState();
-
-    Set<String> getSupportedTaskStates();
-
-    Set<String> getSupportedTaskOperations();
-
-    Set<String> getSupportedHumanRoles();
-
-    void validateRuntimeModel();
-
-    boolean isSupportedTask(String taskType);
 }

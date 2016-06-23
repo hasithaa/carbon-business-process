@@ -17,9 +17,10 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.db.model;
+package org.wso2.carbon.humantask.engine.runtime.persistence.entity;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.type.Alias;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.humantask.engine.runtime.HumanTaskRuntimeException;
@@ -27,8 +28,9 @@ import org.wso2.carbon.humantask.engine.runtime.HumanTaskRuntimeException;
 import java.util.Date;
 
 /**
- * Entity Class for HumanTasks.
+ * BaseEntity Class for HumanTasks.
  */
+@Alias("HumanTask")
 public class HumanTask {
 
     private final static Logger logger = LoggerFactory.getLogger(HumanTask.class);
@@ -46,7 +48,7 @@ public class HumanTask {
     private boolean escalated;
 
     // Following variables are not defined as enum, to support other task implementations.
-    private String state;
+    private int state;
     private String taskType;
 
     private Date activationTime;
@@ -65,7 +67,36 @@ public class HumanTask {
     private String businessType;
 
     public HumanTask(long taskID, String taskName, String packageName, String taskDefinitionName, long
-            taskDefinitionVersion, int priority, String state, boolean skipable, boolean escalated, String taskType,
+            taskDefinitionVersion, int priority , String taskType){
+        validateInputs(taskID, taskName, packageName, taskDefinitionName, taskDefinitionVersion);
+        this.taskID = taskID;
+        this.taskName = taskName;
+        this.packageName = packageName;
+        this.taskDefinitionName = taskDefinitionName;
+        this.taskDefinitionVersion = taskDefinitionVersion;
+        if (priority >= 0 && priority <= 10) {
+            this.priority = priority;
+        } else {
+            logger.warn("Task instance " + taskID + " has invalid priority version. Setting to default");
+            this.priority = 5;
+        }
+        this.state = -1;
+        this.skipable = false;
+        this.escalated = false;
+        this.taskType = taskType;
+        this.activationTime = new Date();
+        this.completeByTime = null;
+        this.expirationTime = null;
+        this.createdOnTime = new Date();
+        this.inputMessage = -1;
+        this.outputMessage = -1;
+        this.faultMessage = -1;
+        this.businessKey = null;
+        this.businessType = null;
+    }
+
+    public HumanTask(long taskID, String taskName, String packageName, String taskDefinitionName, long
+            taskDefinitionVersion, int priority, int state, boolean skipable, boolean escalated, String taskType,
                      Date activationTime, Date completeByTime, Date expirationTime, Date createdOnTime, long
                              inputMessage, String businessKey, String businessType) {
 
@@ -77,7 +108,7 @@ public class HumanTask {
         this.taskDefinitionVersion = taskDefinitionVersion;
         if (priority >= 0 && priority <= 10) {
             this.priority = priority;
-        }else {
+        } else {
             logger.warn("Task instance " + taskID + " has invalid priority version. Setting to default");
             this.priority = 5;
         }
@@ -90,6 +121,8 @@ public class HumanTask {
         this.expirationTime = expirationTime;
         this.createdOnTime = createdOnTime;
         this.inputMessage = inputMessage;
+        this.outputMessage = -1;
+        this.faultMessage = -1;
         this.businessKey = businessKey;
         this.businessType = businessType;
     }
@@ -187,11 +220,11 @@ public class HumanTask {
         this.escalated = escalated;
     }
 
-    public String getState() {
+    public int getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(int state) {
         this.state = state;
     }
 

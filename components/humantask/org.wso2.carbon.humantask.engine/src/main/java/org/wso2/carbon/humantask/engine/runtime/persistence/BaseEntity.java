@@ -17,24 +17,23 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.lifecycle;
+package org.wso2.carbon.humantask.engine.runtime.persistence;
 
-import java.util.Set;
+public interface BaseEntity {
 
-public interface TaskLifeCycle {
+    Long getId();
+    void setId(Long id);
 
+    // Field for Optimistic Locking.
+    int getRevision();
+    void setRevision(int version);
 
-    Set<String> getSupportedTaskType();
-
-    State getStartingState();
-
-    Set<String> getSupportedTaskStates();
-
-    Set<String> getSupportedTaskOperations();
-
-    Set<String> getSupportedHumanRoles();
-
-    void validateRuntimeModel();
-
-    boolean isSupportedTask(String taskType);
+    /**
+     * Returns a representation of the object,
+     *  as would be stored in the database.
+     * Used when deciding if updates have
+     *  occurred to the object or not since
+     *  it was last loaded.
+     */
+    java.lang.Object getPersistentState();
 }

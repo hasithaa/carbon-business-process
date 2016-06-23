@@ -17,13 +17,11 @@
  **/
 
 
-package org.wso2.carbon.humantask.engine.runtime.db;
+package org.wso2.carbon.humantask.engine.runtime.persistence.entity.manager;
 
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.wso2.carbon.humantask.engine.runtime.persistence.entity.Property;
 
-public class SessionFactory {
+public interface PropertyEntityManager {
 
-    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(new Configuration());
+    public void save(Property property);
 }

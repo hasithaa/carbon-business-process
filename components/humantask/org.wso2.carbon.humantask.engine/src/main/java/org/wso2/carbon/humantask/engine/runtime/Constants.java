@@ -26,6 +26,7 @@ public class Constants {
     }
 
     //Properties.
+    public final static String NS_ENGINE = "http://wso2.org/bps/humantask/";
 
 
     public final static String AUDIT = "AUDIT";
@@ -52,11 +53,26 @@ public class Constants {
     public final static String MSG_INVALID_CACHE_EXPIRY_TIME = "Found invalid Cache expiry time. Using Default value " +
             "900 Seconds (15 minutes) of cache expiry time.";
 
+    public final static String MSG_SESSION_FACTORY_NOT_INIT = "Unable to open session. SessionFactory is not " +
+            "initialized properly.";
+
+    public final static String MSG_INVALID_TASK_IDENTIFIER = "Invalid Task Identifier.";
+
 
     public static String getTaskIDFormatted(long id) {
         StringBuilder br = new StringBuilder();
         br.append(CHAR_OSB).append(TASK_ID).append(CHAR_EQL).append(id).append(CHAR_CSB);
         return br.toString();
     }
+
+    public final static String DATABASE_TYPE_H2 = "h2";
+    public final static String DATABASE_TYPE_HSQL = "hsql";
+    public final static String DATABASE_TYPE_MYSQL = "mysql";
+    public final static String DATABASE_TYPE_ORACLE = "oracle";
+    public final static String DATABASE_TYPE_POSTGRES = "postgres";
+    public final static String DATABASE_TYPE_MSSQL = "mssql";
+    public final static String DATABASE_TYPE_DB2 = "db2";
+
+
 
 }

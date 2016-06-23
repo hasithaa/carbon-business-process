@@ -21,9 +21,13 @@ package org.wso2.carbon.humantask.engine.runtime;
 
 import org.wso2.carbon.humantask.engine.runtime.people.PeopleQueryEvaluator;
 
+import javax.sql.DataSource;
+
 public class HumanTaskRuntime {
 
     private PeopleQueryEvaluator peopleQueryEvaluator;
+
+    private DataSource humantaskDataSource;
 
 
     /**
@@ -42,5 +46,13 @@ public class HumanTaskRuntime {
      */
     public void setPeopleQueryEvaluator(PeopleQueryEvaluator peopleQueryEvaluator) {
         this.peopleQueryEvaluator = peopleQueryEvaluator;
+    }
+
+    public DataSource getHumantaskDataSource() {
+        return humantaskDataSource;
+    }
+
+    public void setHumantaskDataSource(DataSource humantaskDataSource) {
+        this.humantaskDataSource = humantaskDataSource;
     }
 }

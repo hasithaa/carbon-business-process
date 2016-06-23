@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11;
 
+import org.wso2.carbon.humantask.engine.runtime.impl.ws.humantask11.execution.CmdActivate;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.HumanRole;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.Operation;
 import org.wso2.carbon.humantask.engine.runtime.lifecycle.State;
@@ -31,7 +32,7 @@ import java.util.Set;
 
 public class WSHumanTask11LifeCycle implements TaskLifeCycle {
 
-    private final static WSHumanTask11LifeCycle instance = new WSHumanTask11LifeCycle();
+    private static WSHumanTask11LifeCycle instance;
 
     private final String id;
     private Map<String, State> wsHumanTaskStates;
@@ -121,6 +122,7 @@ public class WSHumanTask11LifeCycle implements TaskLifeCycle {
         activate.addNextState(created, ready);
         activate.setAllowedHumanRole(taskInitiator, taskStakeholders, businessAdministrator);
         activate.setExcludedHumanRole(potentialOwners, actualOwner);
+        activate.setExecutor(CmdActivate.class);
         wsHumanTaskOperations.put(activate.getOperationName(), activate);
 
         // addAttachment
@@ -492,28 +494,49 @@ public class WSHumanTask11LifeCycle implements TaskLifeCycle {
     }
 
     public static WSHumanTask11LifeCycle getInstance() {
+        if (instance != null) {
+            return instance;
+        } else {
+            instance = new WSHumanTask11LifeCycle();
+        }
         return instance;
     }
 
 
     public void validateRuntimeModel() {
         // This method only for Validation at unit testing.
+
+        // Validate model for unique ID.
         Set<Integer> stateValues = new HashSet<>();
         for (State state : wsHumanTaskStates.values()) {
             if (stateValues.contains(state.getId())) {
                 throw new RuntimeException("There are duplicate states defined : " + state.getId() + " for Life cycle" +
-                        ". " + this.getClass().getName());
+                        " " + this.getClass().getName());
             } else {
                 stateValues.add(state.getId());
             }
         }
         Set<Integer> operationValues = new HashSet<>();
         for (Operation operation : wsHumanTaskOperations.values()) {
-
+            if (operationValues.contains(operation.getId())) {
+                throw new RuntimeException("There are duplicate Operations defined : " + operation.getId() + " for " +
+                        "Life cycle " + this.getClass().getName());
+            } else {
+                operationValues.add(operation.getId());
+            }
+        }
+        Set<Integer> roleValues = new HashSet<>();
+        for (HumanRole role : supportedHumanRoles.values()) {
+            if (roleValues.contains(role.getId())) {
+                throw new RuntimeException("There are duplicate HumanRoles defined : " + role.getId() + " for Life " +
+                        "cycle " + this.getClass().getName());
+            } else {
+                roleValues.add(role.getId());
+            }
         }
     }
 
-    @Override
+
     public Set<String> getSupportedTaskType() {
         return supportedTasks;
     }
@@ -532,5 +555,13 @@ public class WSHumanTask11LifeCycle implements TaskLifeCycle {
 
     public Set<String> getSupportedHumanRoles() {
         return supportedHumanRoles.keySet();
+    }
+
+    public boolean isSupportedTask(String taskType) {
+       return this.supportedTasks.contains(taskType);
+    }
+
+    public Operation getOperation(String operation){
+        return this.wsHumanTaskOperations.get(operation);
     }
 }

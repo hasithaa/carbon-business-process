@@ -59,14 +59,14 @@
             <groupId>org.wso2.carbon.jndi</groupId>
             <artifactId>org.wso2.carbon.jndi</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.deployment</groupId>
-            <artifactId>org.wso2.carbon.deployment.engine</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.carbon.deployment</groupId>-->
+            <!--<artifactId>org.wso2.carbon.deployment.engine</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.wso2.carbon.caching</groupId>
             <artifactId>org.wso2.carbon.caching</artifactId>
-            <version>1.0.0-m1</version>
+            <version>${carbon.caching.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.security.caas</groupId>
@@ -136,24 +136,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <properties>
-        <checkstyle.skip>true</checkstyle.skip>
-        <private.package>org.wso2.carbon.bpmn.core.internal</private.package>
-        <export.package>
-            !org.wso2.carbon.bpmn.core.internal,
-            org.wso2.carbon.bpmn.core.*;
-            version=${carbon.business-process.exp.pkg.version},
-            rest.*;
-            version=${carbon.business-process.exp.pkg.version},
-        </export.package>
-        <import.package>
-            org.osgi.framework; version="[1.8.0, 2.0.0)",
-            org.wso2.carbon.security.caas.*;version="1.0.0",
-            org.slf4j; version="[1.7.7, 2.0.0)"
-        </import.package>
-        <dynamic.import.package>*</dynamic.import.package>
-    </properties>
 
     <build>
         <plugins>
@@ -227,5 +209,25 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+        <private.package>org.wso2.carbon.humantask.engine.internal</private.package>
+        <export.package>
+            !org.wso2.carbon.humantask.engine.internal,
+            org.wso2.carbon.humantask.engine.*;
+            version=${carbon.business-process.exp.pkg.version},
+            org.wso2.carbon.humantask.model.*;
+            version=${carbon.business-process.exp.pkg.version},
+        </export.package>
+        <import.package>
+            org.osgi.framework; version="${org.osgi.import.version}",
+            org.wso2.carbon.security.caas.*;version="${carbon.security.caas.import.version}",
+            org.wso2.carbon.datasource.*;version="${carbon.datasources.import.version}",
+            org.wso2.carbon.caching*;version="${carbon.caching.import.version}",
+            org.slf4j; version="${slf4j.import.version}"
+        </import.package>
+        <dynamic.import.package>*</dynamic.import.package>
+    </properties>
 
 </project>

@@ -22,10 +22,14 @@ package org.wso2.carbon.humantask.engine;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.humantask.engine.config.model.HumanTaskConfiguration;
+import org.wso2.carbon.humantask.engine.internal.ContentHolder;
 import org.wso2.carbon.humantask.engine.runtime.HumanTaskRuntime;
 import org.wso2.carbon.humantask.engine.runtime.audit.HumanTaskAuditor;
 import org.wso2.carbon.humantask.engine.runtime.people.PeopleQueryEvaluator;
+
+import javax.sql.DataSource;
 
 /**
  * Human Task Engine implementation.
@@ -37,7 +41,7 @@ public class HumanTaskEngineImpl implements HumanTaskEngine {
     private final static Logger logger = LoggerFactory.getLogger(HumanTaskEngineImpl.class);
 
     private HumanTaskAuditor humanTaskHumanTaskAuditor;
-    private HumanTaskConfiguration humanTaskEngineConfiguration;
+    private HumanTaskConfiguration configuration;
     private HumanTaskRuntime taskRuntime;
 
     private boolean isInitialized;
@@ -59,15 +63,14 @@ public class HumanTaskEngineImpl implements HumanTaskEngine {
         if (isEngineRunning) {
             throw new EngineRuntimeException("Unable to initialize. Engine is running, shutdown engine first.");
         }
-        if (this.humanTaskEngineConfiguration == null) {
+        if (this.configuration == null) {
             throw new EngineRuntimeException("Found invalid humantask engine configuration.");
         }
         taskRuntime = new HumanTaskRuntime();
 
         // Setting PeopleQuery Eval.
-        String peopleQueryEvaluator = this.humanTaskEngineConfiguration.getPeopleQueryConfiguration()
-                .getPeopleQueryEvaluator();
-        if (peopleQueryEvaluator != null || StringUtils.isEmpty(peopleQueryEvaluator.trim())) {
+        String peopleQueryEvaluator = this.configuration.getPeopleQueryConfiguration().getPeopleQueryEvaluator();
+        if (peopleQueryEvaluator != null || !StringUtils.isEmpty(peopleQueryEvaluator.trim())) {
             try {
                 PeopleQueryEvaluator pqe = (PeopleQueryEvaluator) Class.forName(peopleQueryEvaluator).newInstance();
                 this.taskRuntime.setPeopleQueryEvaluator(pqe);
@@ -80,6 +83,21 @@ public class HumanTaskEngineImpl implements HumanTaskEngine {
                     "review your config.");
         }
         // Setting Database runtime.
+        if (!this.configuration.getDataSource().isRunInMemory()) {
+            String htDataSourceName = this.configuration.getDataSource().getHumanTaskDataSource();
+            if (htDataSourceName != null || !StringUtils.isEmpty(htDataSourceName.trim())) {
+                try {
+                    taskRuntime.setHumantaskDataSource((DataSource) ContentHolder.getInstance().getDataSourceService()
+                            .getDataSource(htDataSourceName));
+                } catch (DataSourceException e) {
+                    throw new EngineRuntimeException("Unable to retrieve dataSource from DataSource service.");
+                }
+            } else {
+                throw new EngineRuntimeException("Found null or empty configuration for HumanTaskDataSource. Please " +
+                        "review your config.");
+            }
+            // TODO : Initialize other dataSources.
+        }
         //TODO : Implement logic.
 
 
@@ -125,7 +143,7 @@ public class HumanTaskEngineImpl implements HumanTaskEngine {
     public synchronized void destroy() throws EngineRuntimeException {
         shutdown();
         //TODO : Implement missing logic.
-        humanTaskEngineConfiguration = null;
+        configuration = null;
         humanTaskHumanTaskAuditor = null;
         taskRuntime = null;
     }
@@ -150,22 +168,22 @@ public class HumanTaskEngineImpl implements HumanTaskEngine {
     }
 
     /**
+     * Get current HumanTask engine configuration.
+     *
+     * @return initialized HumanTaskConfiguration instance for current engine.
+     */
+    public HumanTaskConfiguration getEngineConfiguration() {
+        return configuration;
+    }
+
+    /**
      * Set HumanTask engine configuration. Once new configuration set, user has to run init method to apply changes.
      *
      * @param taskConfiguration HumanTaskConfiguration
      */
     public synchronized void setEngineConfiguration(final HumanTaskConfiguration taskConfiguration) {
         this.isInitialized = false;
-        this.humanTaskEngineConfiguration = taskConfiguration;
-    }
-
-    /**
-     * Get current HumanTask engine configuration.
-     *
-     * @return initialized HumanTaskConfiguration instance for current engine.
-     */
-    public HumanTaskConfiguration getEngineConfiguration() {
-        return humanTaskEngineConfiguration;
+        this.configuration = taskConfiguration;
     }
 
     /**
@@ -190,21 +208,21 @@ public class HumanTaskEngineImpl implements HumanTaskEngine {
     }
 
     /**
-     * Set HumanTask HumanTaskAuditor.
-     *
-     * @param humanTaskAuditor
-     */
-    public void setAuditor(HumanTaskAuditor humanTaskAuditor) {
-        this.humanTaskHumanTaskAuditor = humanTaskAuditor;
-    }
-
-    /**
      * Get HumanTask HumanTaskAuditor.
      *
      * @return
      */
     public HumanTaskAuditor getAuditor() {
         return humanTaskHumanTaskAuditor;
+    }
+
+    /**
+     * Set HumanTask HumanTaskAuditor.
+     *
+     * @param humanTaskAuditor
+     */
+    public void setAuditor(HumanTaskAuditor humanTaskAuditor) {
+        this.humanTaskHumanTaskAuditor = humanTaskAuditor;
     }
 
 }

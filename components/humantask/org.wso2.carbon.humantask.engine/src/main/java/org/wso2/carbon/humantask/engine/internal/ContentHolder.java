@@ -20,6 +20,7 @@
 package org.wso2.carbon.humantask.engine.internal;
 
 import org.wso2.carbon.caching.CarbonCachingService;
+import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.humantask.engine.EngineRuntimeException;
 import org.wso2.carbon.humantask.engine.HumanTaskEngine;
 import org.wso2.carbon.security.caas.user.core.service.RealmService;
@@ -45,6 +46,8 @@ public class ContentHolder {
     private RealmService realmService;
 
     private CarbonCachingService cachingService;
+
+    private DataSourceService dataSourceService;
 
     private ContentHolder() {
     }
@@ -109,5 +112,11 @@ public class ContentHolder {
         return cacheManager.createCache(name, config);
     }
 
+    public DataSourceService getDataSourceService() {
+        return dataSourceService;
+    }
 
+    public void setDataSourceService(DataSourceService dataSourceService) {
+        this.dataSourceService = dataSourceService;
+    }
 }

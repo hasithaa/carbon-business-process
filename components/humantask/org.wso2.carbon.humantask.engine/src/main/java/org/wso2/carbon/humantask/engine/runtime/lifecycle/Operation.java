@@ -19,8 +19,13 @@
 
 package org.wso2.carbon.humantask.engine.runtime.lifecycle;
 
-import org.wso2.carbon.humantask.engine.runtime.scheduler.command.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.humantask.engine.runtime.lifecycle.execution.AbstractOperationExecution;
+import org.wso2.carbon.humantask.engine.runtime.lifecycle.execution.FaultyOperationExecution;
+import org.wso2.carbon.humantask.engine.runtime.lifecycle.execution.UnsupportedOperationExecution;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +35,7 @@ import java.util.Map;
 
 public class Operation {
 
+    private static final Logger logger = LoggerFactory.getLogger(Operation.class);
     private final int id;
     private final boolean isBatchSupported;
     private final boolean stateFullOperation;
@@ -37,7 +43,7 @@ public class Operation {
     private Map<Integer, Integer> nextStates;
     private List<Integer> allowedHumanRole;
     private List<Integer> excludedHumanRole;
-    private Class<Command> executor;
+    private Class executor;
 
     public Operation(int id, String name) {
         this.id = id;
@@ -47,6 +53,7 @@ public class Operation {
         this.nextStates = new HashMap<>();
         allowedHumanRole = new ArrayList<>();
         excludedHumanRole = new ArrayList<>();
+        executor = UnsupportedOperationExecution.class;
     }
 
     public Operation(int id, String name, boolean isBatchSupported) {
@@ -57,6 +64,7 @@ public class Operation {
         this.nextStates = new HashMap<>();
         allowedHumanRole = new ArrayList<>();
         excludedHumanRole = new ArrayList<>();
+        executor = UnsupportedOperationExecution.class;
     }
 
     public Operation(int id, String name, boolean isBatchSupported, boolean stateFullOperation) {
@@ -67,6 +75,7 @@ public class Operation {
         this.nextStates = new HashMap<>();
         allowedHumanRole = new ArrayList<>();
         excludedHumanRole = new ArrayList<>();
+        executor = UnsupportedOperationExecution.class;
     }
 
     public void addNextState(State current, State next) {
@@ -121,11 +130,24 @@ public class Operation {
         return id;
     }
 
-    public Class<Command> getExecutor() {
-        return executor;
+    public AbstractOperationExecution getExecutor() {
+        try {
+            return (AbstractOperationExecution) executor.getConstructor(Operation.class)
+                    .newInstance(this);
+        } catch (InstantiationException | IllegalAccessException
+                | NoSuchMethodException | InvocationTargetException e) {
+            String errorMsg = "Unable to instantiate Execution for Operation : " + operationName + ". "
+                    + e.getMessage();
+            // TODO : Add to auditor.
+            logger.warn(errorMsg, e);
+            return new FaultyOperationExecution(this, "Error while creating execution.", errorMsg);
+        }
+
     }
 
-    public void setExecutor(Class<Command> executor) {
-        this.executor = executor;
+    public void setExecutor(Class executor) {
+        if (executor.isAssignableFrom(AbstractOperationExecution.class)) {
+            this.executor = executor;
+        }
     }
 }

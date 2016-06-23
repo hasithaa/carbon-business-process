@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.wso2.carbon.humantask.engine.runtime.persistence.entity.manager.PropertyEntityManager">
+
+    <insert id="save" parameterType="property" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+        INSERT INTO ht_property (name,revision,value)
+        VALUE (#{name}, #{revision}, #{value} )
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+</mapper>
