@@ -17,9 +17,8 @@
  **/
 
 
-package org.wso2.carbon.bpmn.tests.osgi;
+package org.wso2.carbon.humantask.tests.osgi;
 
-import org.activiti.engine.ProcessEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ops4j.pax.exam.Configuration;
@@ -31,8 +30,10 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.bpmn.core.BPMNEngineService;
-import org.wso2.carbon.bpmn.tests.osgi.utils.BasicServerConfigurationUtil;
+import org.wso2.carbon.humantask.engine.EngineRuntimeException;
+import org.wso2.carbon.humantask.engine.HumanTaskEngine;
+import org.wso2.carbon.humantask.engine.HumanTaskEngineOSGIServiceImpl;
+import org.wso2.carbon.humantask.tests.osgi.utils.BasicServerConfigurationUtil;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
@@ -43,15 +44,15 @@ import javax.inject.Inject;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-public class BPMNServerCreationTest {
+public class HumanTaskServerCreationTest {
 
-    private static final Log log = LogFactory.getLog(BPMNServerCreationTest.class);
+    private static final Log log = LogFactory.getLog(HumanTaskServerCreationTest.class);
 
     @Inject
     private BundleContext bundleContext;
 
     @Inject
-    private BPMNEngineService bpmnEngineService;
+    private HumanTaskEngineOSGIServiceImpl humanTaskEngineOSGIService;
 
     @Inject
     private CarbonServerInfo carbonServerInfo;
@@ -65,8 +66,8 @@ public class BPMNServerCreationTest {
 
         CarbonSysPropConfiguration sysPropConfiguration = new CarbonSysPropConfiguration();
         sysPropConfiguration.setCarbonHome(carbonHome.toString());
-        sysPropConfiguration.setServerKey("carbon-bpmn");
-        sysPropConfiguration.setServerName("WSO2 Carbon BPMN Server");
+        sysPropConfiguration.setServerKey("carbon-humantask");
+        sysPropConfiguration.setServerName("WSO2 Carbon humantask Server");
         sysPropConfiguration.setServerVersion("1.0.0");
 
         optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, sysPropConfiguration);
@@ -75,12 +76,13 @@ public class BPMNServerCreationTest {
     }
 
     @Test
-    public void testProcessEngineCreation() {
+    public void testTaskEngineCreation() throws EngineRuntimeException {
         log.info("Starting Test case. ");
-        ProcessEngine processEngine = bpmnEngineService.getProcessEngine();
-        Assert.assertNotNull(processEngine, "processEngine is not set");
-        String name = processEngine.getName();
-        Assert.assertNotNull(name, "processEngine name is null.");
+        HumanTaskEngine humanTaskEngine = humanTaskEngineOSGIService.getHumanTaskEngine();
+
+        Assert.assertNotNull(humanTaskEngine, "TaskEngine  is null.");
+        humanTaskEngine.start();
+        Assert.assertTrue(humanTaskEngine.isEngineRunning(), "Task engine is not running.");
 
     }
 }

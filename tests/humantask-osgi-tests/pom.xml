@@ -1,11 +1,11 @@
-<?xml taskDefinitionVersion="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>carbon-business-process-tests</artifactId>
         <groupId>org.wso2.carbon.business-process</groupId>
-        <taskDefinitionVersion>5.0.0-SNAPSHOT</taskDefinitionVersion>
+        <version>5.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -20,7 +20,7 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <taskDefinitionVersion>${maven.wagon.ssh.taskDefinitionVersion}</taskDefinitionVersion>
+                <version>${maven.wagon.ssh.version}</version>
             </extension>
         </extensions>
         <plugins>
@@ -39,7 +39,8 @@
         <!-- HumanTask Dependencies -->
         <dependency>
             <groupId>org.wso2.carbon.business-process</groupId>
-            <artifactId>org.wso2.carbon.bpmn</artifactId>
+            <artifactId>org.wso2.carbon.humantask.engine</artifactId>
+            <version>${carbon.business-process.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- Kernel and Platform Dependencies -->
@@ -49,23 +50,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.jndi</groupId>
-            <artifactId>org.wso2.carbon.jndi</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.datasources</groupId>
             <artifactId>org.wso2.carbon.datasource.core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.security.caas</groupId>
-            <artifactId>org.wso2.carbon.security.caas</artifactId>
+            <groupId>org.wso2.carbon.jndi</groupId>
+            <artifactId>org.wso2.carbon.jndi</artifactId>
+            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.security.userstore</groupId>
-            <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
-        </dependency>
-
         <!-- Pax Exam Dependencies-->
         <dependency>
             <groupId>org.testng</groupId>
@@ -125,18 +118,6 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jpa_2.0_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath.wso2</groupId>
-            <artifactId>json-path</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -214,9 +195,15 @@
                                 <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}
                                 </org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
-                                <org.ops4j.pax.logging.DefaultServiceLog.level>INFO
+                                <org.ops4j.pax.logging.DefaultServiceLog.level>DEBUG
                                 </org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
+                            <systemProperties>
+                                <property>
+                                    <name>carbon.home</name>
+                                    <value>${basedir}/target/carbon-home</value>
+                                </property>
+                            </systemProperties>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
@@ -225,30 +212,27 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <taskDefinitionVersion>${jacoco.taskDefinitionVersion}</taskDefinitionVersion>
+                        <configuration>
+                            <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+                            <excludes>
+                                <!-- Excluding auto generated sources. -->
+                                <exclude>**/org/wso2/carbon/humantask/model/**</exclude>
+                            </excludes>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>default-prepare-agent</id>
+                                <id>jacoco-initialize</id>
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
-                                <configuration>
-                                    <includes>
-                                        <include>org.wso2.carbon.bpmn*</include>
-                                    </includes>
-                                </configuration>
                             </execution>
                             <execution>
-                                <id>default-check</id>
+                                <id>jacoco-site</id>
+                                <phase>package</phase>
                                 <goals>
-                                    <goal>check</goal>
+                                    <goal>report</goal>
                                 </goals>
-                                <configuration>
-                                    <rules>
-                                        <rule>
-                                        </rule>
-                                    </rules>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -280,13 +264,13 @@
                                             <executiondata>
                                                 <file file="${project.build.directory}/jacoco.exec"/>
                                             </executiondata>
-                                            <structure name="Carbon BPMN OSGi Tests">
+                                            <structure name="Carbon Humantask OSGi Tests">
                                                 <classfiles>
                                                     <fileset
-                                                            dir="../../components/bpmn/org.wso2.carbon.bpmn/target/classes"/>
+                                                            dir="../../components/humantask/org.wso2.carbon.humantask.engine/target/classes"/>
                                                 </classfiles>
                                                 <sourcefiles encoding="UTF-8">
-                                                    <fileset dir="../../components/bpmn/org.wso2.carbon.bpmn/src"/>
+                                                    <fileset dir="../../components/humantask/org.wso2.carbon.humantask.engine/src"/>
                                                 </sourcefiles>
                                             </structure>
                                             <html destdir="${project.build.directory}/site/jacoco"/>
@@ -302,14 +286,14 @@
                             <dependency>
                                 <groupId>org.jacoco</groupId>
                                 <artifactId>org.jacoco.ant</artifactId>
-                                <taskDefinitionVersion>${org.jacoco.ant.taskDefinitionVersion}</taskDefinitionVersion>
+                                <version>${org.jacoco.ant.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
                     <plugin>
                         <groupId>org.ops4j.pax.exam</groupId>
                         <artifactId>maven-paxexam-plugin</artifactId>
-                        <taskDefinitionVersion>${maven.paxexam.plugin.taskDefinitionVersion}</taskDefinitionVersion>
+                        <version>${maven.paxexam.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>generate-config</id>
@@ -322,16 +306,16 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>sql-maven-plugin</artifactId>
-                        <taskDefinitionVersion>${maven.sql.plugin.taskDefinitionVersion}</taskDefinitionVersion>
+                        <version>${maven.sql.plugin.version}</version>
                         <dependencies>
                             <dependency>
                                 <groupId>com.h2database</groupId>
                                 <artifactId>h2</artifactId>
-                                <taskDefinitionVersion>${h2.taskDefinitionVersion}</taskDefinitionVersion>
+                                <version>${h2.version}</version>
                             </dependency>
                         </dependencies>
                         <executions>
-                            <!--Create Activiti database-->
+                            <!--Create HumanTask database-->
                             <execution>
                                 <id>create-activiti-database</id>
                                 <phase>generate-resources</phase>
@@ -340,7 +324,7 @@
                                 </goals>
                                 <configuration>
                                     <url>
-                                        jdbc:h2:${project.build.directory}/carbon-home/database/activiti;create=true;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000;MV_STORE=FALSE
+                                        jdbc:h2:${project.build.directory}/carbon-home/database/humantask;create=true;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000;MV_STORE=FALSE
                                     </url>
                                     <username>wso2carbon</username>
                                     <password>wso2carbon</password>
@@ -348,16 +332,7 @@
                                     <autocommit>true</autocommit>
                                     <srcFiles>
                                         <srcFile>
-                                            ${basedir}/../../features/bpmn/org.wso2.carbon.bpmn.server.feature/resources/dbscripts/create/activiti.h2.create.engine.sql
-                                        </srcFile>
-                                        <srcFile>
-                                            ${basedir}/../../features/bpmn/org.wso2.carbon.bpmn.server.feature/resources/dbscripts/create/activiti.h2.create.history.sql
-                                        </srcFile>
-                                        <srcFile>
-                                            ${basedir}/../../features/bpmn/org.wso2.carbon.bpmn.server.feature/resources/dbscripts/create/activiti.h2.create.identity.sql
-                                        </srcFile>
-                                        <srcFile>
-                                            ${basedir}/../../features/bpmn/org.wso2.carbon.bpmn.server.feature/resources/dbscripts/create/activiti.h2.create.metadata.sql
+                                            ${basedir}/../../components/humantask/org.wso2.carbon.humantask.engine/src/main/resources/sql/create/humantask-h2-create.sql
                                         </srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>
@@ -391,7 +366,6 @@
             </build>
         </profile>
     </profiles>
-
     <properties>
         <checkstyle.skip>true</checkstyle.skip>
     </properties>

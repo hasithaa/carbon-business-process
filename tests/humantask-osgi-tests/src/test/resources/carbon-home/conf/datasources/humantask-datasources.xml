@@ -8,14 +8,14 @@
     <datasources>
 
         <datasource>
-            <name>ACTIVITI_DB</name>
-            <description>The datasource used for activiti engine</description>
+            <name>HumanTask</name>
+            <description>The datasource used for humantask engine</description>
             <jndiConfig>
-                <name>java:comp/jdbc/ActivitiDB</name>
+                <name>java:comp/jdbc/HumanTask</name>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:h2:./target/carbon-home/database/activiti;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
+                    <url>jdbc:h2:./target/carbon-home/database/humantask;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
                     <username>wso2carbon</username>
                     <password>wso2carbon</password>
                     <driverClassName>org.h2.Driver</driverClassName>

@@ -35,11 +35,13 @@
 
     <modules>
         <module>org.wso2.carbon.humantask.engine</module>
-        <!--<module>../../tests/humantask-osgi-tests</module>-->
+        <module>../../tests/humantask-osgi-tests</module>
     </modules>
 
     <properties>
         <checkstyle.skip>true</checkstyle.skip>
+        <carbon.caching.version>1.0.0-m1</carbon.caching.version>
+        <carbon.caching.import.version>[1.0.0,2)</carbon.caching.import.version>
     </properties>
 
 </project>
