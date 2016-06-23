@@ -25,21 +25,13 @@ import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.impl.persistence.entity.HistoricTaskInstanceEntity;
 import org.activiti.engine.impl.persistence.entity.VariableInstanceEntity;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.bpmn.core.BPMNEngineService;
 import org.wso2.carbon.bpmn.rest.common.RequestUtil;
 import org.wso2.carbon.bpmn.rest.common.RestResponseFactory;
 import org.wso2.carbon.bpmn.rest.common.RestUrlBuilder;
 import org.wso2.carbon.bpmn.rest.engine.variable.RestVariable;
-import org.wso2.carbon.bpmn.rest.internal.BPMNOSGIService;
+import org.wso2.carbon.bpmn.rest.internal.RestServiceContentHolder;
 import org.wso2.carbon.bpmn.rest.model.common.DataResponse;
 import org.wso2.carbon.bpmn.rest.model.history.HistoricIdentityLinkResponse;
 import org.wso2.carbon.bpmn.rest.model.history.HistoricIdentityLinkResponseCollection;
@@ -56,58 +48,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
  *
  */
-@Component(
-        name = "org.wso2.carbon.bpmn.rest.service.history.HistoricTaskInstanceService",
-        service = Microservice.class,
-        immediate = true)
-@Path("/historic-task-instances")
+//@Component(
+//        name = "org.wso2.carbon.bpmn.rest.service.history.HistoricTaskInstanceService",
+//        service = Microservice.class,
+//        immediate = true)
+//@Path("/historic-task-instances")
 public class HistoricTaskInstanceService extends BaseHistoricTaskInstanceService
         implements Microservice {
 
     private static final Logger log = LoggerFactory.getLogger(HistoricTaskInstanceService.class);
 
-    @Reference(
-            name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
-            service = BPMNEngineService.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterBPMNEngineService")
-    public void setBpmnEngineService(BPMNEngineService engineService) {
-        log.info("Setting BPMN engine " + engineService);
 
-    }
-
-    protected void unRegisterBPMNEngineService(BPMNEngineService engineService) {
-        log.info("Unregister BPMNEngineService..");
-    }
-
-    @Activate
-    protected void activate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @Deactivate
-    protected void deactivate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @GET
-    @Path("/")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getHistoricProcessInstances(@Context Request request) {
+    public Response getHistoricTaskInstances(Request request) {
 
         Map<String, String> allRequestParams = new HashMap<>();
         QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());
@@ -291,31 +248,24 @@ public class HistoricTaskInstanceService extends BaseHistoricTaskInstanceService
         return Response.ok().entity(dataResponse).build();
     }
 
-    @GET
-    @Path("/{task-id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getTaskInstance(@PathParam("task-id") String taskId,
-                                    @Context Request request) {
+
+    public Response getTaskInstance(String taskId, Request request) {
         HistoricTaskInstanceResponse historicTaskInstanceResponse = new RestResponseFactory()
                 .createHistoricTaskInstanceResponse(getHistoricTaskInstanceFromRequest(taskId),
                         request.getUri());
         return Response.ok().entity(historicTaskInstanceResponse).build();
     }
 
-    @DELETE
-    @Path("/{task-id}")
-    public Response deleteTaskInstance(@PathParam("task-id") String taskId) {
-        HistoryService historyService = BPMNOSGIService.getHistoryService();
+
+    public Response deleteTaskInstance(String taskId) {
+        HistoryService historyService = RestServiceContentHolder.getInstance().getRestService().getHistoryService();
         historyService.deleteHistoricTaskInstance(taskId);
         return Response.ok().status(Response.Status.NO_CONTENT).build();
     }
 
-    @GET
-    @Path("/{task-id}/identitylinks")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getTaskIdentityLinks(@PathParam("task-id") String taskId,
-                                         @Context Request request) {
-        HistoryService historyService = BPMNOSGIService.getHistoryService();
+
+    public Response getTaskIdentityLinks(String taskId, Request request) {
+        HistoryService historyService = RestServiceContentHolder.getInstance().getRestService().getHistoryService();
         List<HistoricIdentityLink> identityLinks =
                 historyService.getHistoricIdentityLinksForTask(taskId);
 
@@ -334,11 +284,8 @@ public class HistoricTaskInstanceService extends BaseHistoricTaskInstanceService
         return Response.ok().entity(historicIdentityLinkResponseCollection).build();
     }
 
-    @GET
-    @Path("/{task-id}/variables/{variable-name}/data")
-    public byte[] getVariableData(@PathParam("task-id") String taskId,
-                                  @PathParam("variable-name") String variableName,
-                                  @QueryParam("scope") String scope, @Context Request request) {
+
+    public byte[] getVariableData(String taskId, String variableName, String scope, Request request) {
 
         Response.ResponseBuilder response = Response.ok();
         try {
@@ -372,7 +319,7 @@ public class HistoricTaskInstanceService extends BaseHistoricTaskInstanceService
     protected RestVariable getVariableFromRequest(boolean includeBinary, String taskId,
                                                   String variableName, String scope,
                                                   String baseContext) {
-        HistoryService historyService = BPMNOSGIService.getHistoryService();
+        HistoryService historyService = RestServiceContentHolder.getInstance().getRestService().getHistoryService();
         RestVariable.RestVariableScope variableScope = RestVariable.getScopeFromString(scope);
         HistoricTaskInstanceQuery taskQuery =
                 historyService.createHistoricTaskInstanceQuery().taskId(taskId);

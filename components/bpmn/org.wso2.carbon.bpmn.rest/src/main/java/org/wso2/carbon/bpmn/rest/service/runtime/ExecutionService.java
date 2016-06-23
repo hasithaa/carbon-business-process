@@ -22,19 +22,11 @@ import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.impl.persistence.entity.VariableInstanceEntity;
 import org.activiti.engine.runtime.Execution;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.bpmn.core.BPMNEngineService;
 import org.wso2.carbon.bpmn.rest.common.RestResponseFactory;
 import org.wso2.carbon.bpmn.rest.engine.variable.RestVariable;
-import org.wso2.carbon.bpmn.rest.internal.BPMNOSGIService;
+import org.wso2.carbon.bpmn.rest.internal.RestServiceContentHolder;
 import org.wso2.carbon.bpmn.rest.model.common.DataResponse;
 import org.wso2.carbon.bpmn.rest.model.runtime.ActiveActivityCollection;
 import org.wso2.carbon.bpmn.rest.model.runtime.ExecutionActionRequest;
@@ -42,7 +34,6 @@ import org.wso2.carbon.bpmn.rest.model.runtime.ExecutionQueryRequest;
 import org.wso2.carbon.bpmn.rest.model.runtime.ExecutionResponse;
 import org.wso2.carbon.bpmn.rest.model.runtime.RestVariableCollection;
 import org.wso2.carbon.bpmn.rest.service.base.BaseExecutionService;
-import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
 
 import java.io.ByteArrayOutputStream;
@@ -52,16 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 //import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
@@ -71,41 +52,16 @@ import javax.ws.rs.core.Response;
 /**
  *
  */
-@Component(
-        name = "org.wso2.carbon.bpmn.rest.service.runtime.ExecutionService",
-        service = Microservice.class,
-        immediate = true)
-
-@Path("/executions")
-public class ExecutionService extends BaseExecutionService implements Microservice {
+//@Component(
+//        name = "org.wso2.carbon.bpmn.rest.service.runtime.ExecutionService",
+//        service = Microservice.class,
+//        immediate = true)
+//
+//@Path("/executions")
+public class ExecutionService extends BaseExecutionService { // implements Microservice {
 
     private static final Logger log = LoggerFactory.getLogger(ExecutionService.class);
 
-    @Reference(
-            name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
-            service = BPMNEngineService.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterBPMNEngineService")
-    public void setBpmnEngineService(BPMNEngineService engineService) {
-        log.info("Setting BPMN engine " + engineService);
-
-    }
-
-    protected void unRegisterBPMNEngineService(BPMNEngineService engineService) {
-        log.info("Unregister BPMNEngineService..");
-    }
-
-
-    @Activate
-    protected void activate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @Deactivate
-    protected void deactivate(BundleContext bundleContext) {
-        // Nothing to do
-    }
 
     /**
      * Get the process execution identified by given execution ID
@@ -113,11 +69,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
      * @param executionId
      * @return ExecutionResponse
      */
-    @GET
-    @Path("/{execution-id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getExecution(@PathParam("execution-id") String executionId,
-                                 @Context Request request) {
+    public Response getExecution(String executionId, Request request) {
 
         ExecutionResponse executionResponse = new RestResponseFactory()
                 .createExecutionResponse(getExecutionFromRequest(executionId), request.getUri());
@@ -131,16 +83,10 @@ public class ExecutionService extends BaseExecutionService implements Microservi
      * @param actionRequest
      * @return Response
      */
-    @PUT
-    @Path("/{execution-id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response performExecutionAction(@PathParam("execution-id") String executionId,
-                                           ExecutionActionRequest actionRequest,
-                                           @Context Request request) {
+    public Response performExecutionAction(String executionId, ExecutionActionRequest actionRequest, Request request) {
 
         Execution execution = getExecutionFromRequest(executionId);
-        RuntimeService runtimeService = BPMNOSGIService.getRumtimeService();
+        RuntimeService runtimeService = RestServiceContentHolder.getInstance().getRestService().getRumtimeService();
 
         if (ExecutionActionRequest.ACTION_SIGNAL.equals(actionRequest.getAction())) {
             if (actionRequest.getVariables() != null) {
@@ -194,12 +140,9 @@ public class ExecutionService extends BaseExecutionService implements Microservi
         return response.build();
     }
 
-    @GET
-    @Path("/{execution-id}/activities")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getActiveActivities(@PathParam("execution-id") String executionId) {
+    public Response getActiveActivities(String executionId) {
         Execution execution = getExecutionFromRequest(executionId);
-        RuntimeService runtimeService = BPMNOSGIService.getRumtimeService();
+        RuntimeService runtimeService = RestServiceContentHolder.getInstance().getRestService().getRumtimeService();
 
         List<String> activityIdList = runtimeService.getActiveActivityIds(execution.getId());
         ActiveActivityCollection activeActivityCollection = new ActiveActivityCollection();
@@ -207,10 +150,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
         return Response.ok().entity(activeActivityCollection).build();
     }
 
-    @GET
-    @Path("/")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML}) //TODO:
-    public Response getProcessInstances(@Context Request request) {
+    public Response getProcessInstances(Request request) {
         // Populate query based on request
         ExecutionQueryRequest queryRequest = new ExecutionQueryRequest();
         Map<String, String> allRequestParams = new HashMap<>();
@@ -330,8 +270,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
         return Response.ok().entity(dataResponse).build();
     }
 
-    @PUT
-    @Path("/")
+
     public Response executeExecutionAction(ExecutionActionRequest actionRequest) {
         if (!ExecutionActionRequest.ACTION_SIGNAL_EVENT_RECEIVED
                 .equals(actionRequest.getAction())) {
@@ -342,7 +281,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
         if (actionRequest.getSignalName() == null) {
             throw new ActivitiIllegalArgumentException("Signal name is required.");
         }
-        RuntimeService runtimeService = BPMNOSGIService.getRumtimeService();
+        RuntimeService runtimeService = RestServiceContentHolder.getInstance().getRestService().getRumtimeService();
 
         if (actionRequest.getVariables() != null) {
             runtimeService.signalEventReceived(actionRequest.getSignalName(),
@@ -353,11 +292,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
         return Response.ok().status(Response.Status.NO_CONTENT).build();
     }
 
-    @GET
-    @Path("/{execution-id}/variables")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getVariables(@PathParam("execution-id") String executionId,
-                                 @QueryParam("scope") String scope, @Context Request req) {
+    public Response getVariables(String executionId, String scope, Request req) {
 
         Execution execution = getExecutionFromRequest(executionId);
         List<RestVariable> restVariableList =
@@ -423,20 +358,14 @@ public class ExecutionService extends BaseExecutionService implements Microservi
         return Response.ok().status(Response.Status.CREATED).entity(restVariable).build();
     }
 */
-    @DELETE
-    @Path("/{execution-id}/variables")
-    public Response deleteLocalVariables(@PathParam("execution-id") String executionId) {
+
+    public Response deleteLocalVariables(String executionId) {
         Execution execution = getExecutionFromRequest(executionId);
         deleteAllLocalVariables(execution);
         return Response.ok().status(Response.Status.NO_CONTENT).build();
     }
 
-    @GET
-    @Path("/{execution-id}/variables/{variable-name}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public RestVariable getVariable(@PathParam("execution-id") String executionId,
-                                    @PathParam("variable-name") String variableName,
-                                    @QueryParam("scope") String scope, @Context Request req) {
+    public RestVariable getVariable(String executionId, String variableName, String scope, Request req) {
         Execution execution = getExecutionFromRequest(executionId);
         return getVariableFromRequest(execution, variableName, scope, false, req.getUri());
     }
@@ -495,12 +424,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
 //        return Response.ok().status(Response.Status.CREATED).entity(result).build();
 //    }
 
-    @DELETE
-    @Path("/{execution-id}/variables/{variable-name}")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response deleteVariable(@PathParam("execution-id") String executionId,
-                                   @PathParam("variable-name") String variableName,
-                                   @QueryParam("scope") String scope) {
+    public Response deleteVariable(String executionId, String variableName, String scope) {
         Execution execution = getExecutionFromRequest(executionId);
         // Determine scope
         RestVariable.RestVariableScope variableScope = RestVariable.RestVariableScope.LOCAL;
@@ -516,7 +440,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
                     VariableInstanceEntity.class);
         }
 
-        RuntimeService runtimeService = BPMNOSGIService.getRumtimeService();
+        RuntimeService runtimeService = RestServiceContentHolder.getInstance().getRestService().getRumtimeService();
         if (variableScope == RestVariable.RestVariableScope.LOCAL) {
             runtimeService.removeVariableLocal(execution.getId(), variableName);
         } else {
@@ -528,11 +452,7 @@ public class ExecutionService extends BaseExecutionService implements Microservi
         return Response.ok().status(Response.Status.NO_CONTENT).build();
     }
 
-    @GET
-    @Path("/{execution-id}/variables/{variable-name}/data")
-    public Response getVariableData(@PathParam("execution-id") String executionId,
-                                    @PathParam("variable-name") String variableName,
-                                    @QueryParam("scope") String scope, @Context Request req) {
+    public Response getVariableData(String executionId, String variableName, String scope, Request req) {
 
         try {
             byte[] result = null;

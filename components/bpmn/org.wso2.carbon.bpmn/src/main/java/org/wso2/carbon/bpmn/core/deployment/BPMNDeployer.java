@@ -23,19 +23,12 @@ import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.bpmn.core.BPMNEngineService;
-import org.wso2.carbon.bpmn.core.BPMNServerHolder;
 import org.wso2.carbon.bpmn.core.Utils;
-import org.wso2.carbon.bpmn.core.mgt.dao.ActivitiDAO;
-import org.wso2.carbon.bpmn.core.mgt.model.DeploymentMetaDataModel;
+import org.wso2.carbon.bpmn.core.db.dao.ActivitiDAO;
+import org.wso2.carbon.bpmn.core.db.model.DeploymentMetaDataModel;
+import org.wso2.carbon.bpmn.core.internal.BPMNServerHolder;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
 import org.wso2.carbon.deployment.engine.Deployer;
@@ -50,78 +43,59 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 /**
- * Deployer implementation for BPMN Packages. This deployer is associated with bpmn directory
- * under repository/deployment/server directory. Currently associated file extension is .bar.
- * Separate deployer instance is created for each tenant.
- * Activiti Engine versions same package if deployed twice. In order to overcome this issue,
- * we are using an additional table which will keep track of the deployed package's md5sum in-order to
- * identify the deployment of a new package.
+ * Deployer implementation for BPMN Packages. This deployer is associated with bpmn directory located
+ * at <BPS_HOME>/deployment/server directory. Currently associated file extension is .bar. A single
+ * deployer instance is created and registerd as an osgi service. Activiti Engine versions same
+ * package if deployed twice. In order to overcome this issue, we are using an additional table which
+ * will keep track of the deployed package's md5sum in-order to identify the deployment of a new package.
  */
 
-@Component(
-        name = "org.wso2.carbon.bpmn.core.deployment.BPMNDeployer",
-        service = BPMNDeployer.class,
-        immediate = true
-)
 public class BPMNDeployer implements Deployer {
 
     private static final Logger log = LoggerFactory.getLogger(BPMNDeployer.class);
+
     private static final String DEPLOYMENT_PATH = "file:bpmn";
     private static final String SUPPORTED_EXTENSIONS = "bar";
+    private static final String ARTIFACT_TYPE = "bar";
+
     private URL deploymentLocation;
     private ArtifactType artifactType;
-    private HashMap<Object, List<Object>> deployedArtifacts = new HashMap<>();
+    //    private HashMap<Object, List<Object>> deployedArtifacts =
     private String deploymentDir;
     private File destinationFolder;
     private Path home;
-    ;
+
+
     private ActivitiDAO activitiDAO;
 
     public BPMNDeployer() {
         this.activitiDAO = new ActivitiDAO();
-        init();
-    }
-
-    @Activate
-    protected void start(BundleContext bundleContext) {
-
-    }
-
-    @Reference(
-            name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
-            service = BPMNEngineService.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterBPMNEngineService")
-    public void setBpmnEngineService(BPMNEngineService engineService) {
-    }
-
-    protected void unRegisterBPMNEngineService(BPMNEngineService engineService) {
     }
 
     /**
-     * Initializes the deployment per tenant
+     * Init method for the BPMN Deployer
      */
     @Override
     public void init() {
-        log.info("Initializing BPMNDeployer");
-        artifactType = new ArtifactType<>("bar");
+        artifactType = new ArtifactType<>(ARTIFACT_TYPE);
+
         try {
             deploymentLocation = new URL(DEPLOYMENT_PATH);
             home = org.wso2.carbon.kernel.utils.Utils.getCarbonHome();
             deploymentDir = home + File.separator + "deployment" + File.separator + "bpmn";
+
         } catch (MalformedURLException | ExceptionInInitializerError e) {
-            String msg = "Failed to initialize BPMNDeployer: ";
+            String msg = "BPMN Deployer Initialization failed : ";
             log.error(msg, e);
         }
         destinationFolder = new File(deploymentDir);
+        log.info("Initialized BPMN Deployer Successfully.");
     }
 
     /**
@@ -184,12 +158,12 @@ public class BPMNDeployer implements Deployer {
                     //call for insertion
                     activitiDAO.insertDeploymentMetaDataModel(deploymentMetaDataModel);
 
-                    try {
-                        FileUtils.copyFileToDirectory(artifactFile, destinationFolder);
-                    } catch (IOException e) {
-                        log.error("Unable to add file " + artifactFile + "to directory" +
-                                destinationFolder);
-                    }
+//                    try {
+//                        FileUtils.copyFileToDirectory(artifactFile, destinationFolder);
+//                    } catch (IOException e) {
+//                        log.error("Unable to add file " + artifactFile + "to directory" +
+//                                destinationFolder);
+//                    }
                 } else { //deployment exists
                     // not the same version that is already deployed
                     if (!checksum.equalsIgnoreCase(deploymentMetaDataModel.getCheckSum())) {
@@ -205,7 +179,7 @@ public class BPMNDeployer implements Deployer {
             }
             return artifactPath;
         } else {
-            throw new CarbonDeploymentException("Artifact " + artifactFile.getName() + "doesn't exists.");
+            throw new CarbonDeploymentException("Artifact " + artifactFile.getName() + " doesn't exists.");
         }
 
     }
@@ -260,7 +234,7 @@ public class BPMNDeployer implements Deployer {
     public Object update(Artifact artifact) throws CarbonDeploymentException {
         File artifactFile = artifact.getFile();
         String artifactPath = artifactFile.getAbsolutePath();
-        String deploymentName = artifactFile.getName();
+        String deploymentName = FilenameUtils.getBaseName(artifactFile.getName());
 
         //Update activiti engine based deployment
         ProcessEngine engine = BPMNServerHolder.getInstance().getEngine();
@@ -388,19 +362,10 @@ public class BPMNDeployer implements Deployer {
     }
 
     private boolean isSupportedFile(File file) {
-        return SUPPORTED_EXTENSIONS.equalsIgnoreCase(getFileExtension(file));
+        return SUPPORTED_EXTENSIONS.equalsIgnoreCase(
+                FilenameUtils.getExtension(file.getAbsolutePath()));
     }
 
-    private String getFileExtension(File file) {
-        String fileName = file.getName();
-        String extension = "";
-        if (file.isFile()) {
-            int i = fileName.lastIndexOf('.');
-            if (i > 0) {
-                extension = fileName.substring(i + 1);
-            }
-        }
-        return extension;
-    }
+
 }
 

@@ -167,6 +167,11 @@
                 <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
                 <version>${carbon.security.userstore.jdbc.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.caching</groupId>
+                <artifactId>org.wso2.carbon.caching</artifactId>
+                <version>${carbon.caching.version}</version>
+            </dependency>
             <!-- End of Dependency section 2 -->
 
             <!-- 3 - Carbon Business Process Dependencies -->
@@ -429,7 +434,7 @@
         </carbon.business-process.exp.pkg.version>
 
         <!-- 1 - Carbon Kernel and OSGi Dependencies -->
-        <carbon.kernel.version>5.1.0-alpha2</carbon.kernel.version>
+        <carbon.kernel.version>5.1.0</carbon.kernel.version>
         <carbon.kernel.imp.pkg.version>[5.0.0,6.0.0)</carbon.kernel.imp.pkg.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
@@ -437,21 +442,23 @@
         <org.osgi.import.version>[1.8.0, 2.0.0)</org.osgi.import.version>
 
         <!-- 2 - Hamming Platform components and their Dependencies  -->
-        <carbon.datasources.version>1.0.0-SNAPSHOT</carbon.datasources.version>
+        <carbon.datasources.version>1.0.0</carbon.datasources.version>
         <carbon.datasources.import.version>[1.0.0,2.0.0)</carbon.datasources.import.version>
-        <carbon.jndi.version>1.0.0-alpha</carbon.jndi.version>
+        <carbon.jndi.version>1.0.0</carbon.jndi.version>
         <carbon.jndi.import.version>[1.0.0,2.0.0)</carbon.jndi.import.version>
         <carbon.msf4j.version>1.1.0-SNAPSHOT</carbon.msf4j.version>
         <carbon.msf4j.impl.version.range>[1.1.0,2.0.0)</carbon.msf4j.impl.version.range>
         <carbon.http.netty.version>2.0.2-SNAPSHOT</carbon.http.netty.version>
-        <carbon.deployment.version>5.0.0-SNAPSHOT</carbon.deployment.version>
+        <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.deployment.import.version>[5.0.0,6.0.0)</carbon.deployment.import.version>
         <carbon.messaging.version>1.0.2</carbon.messaging.version>
         <carbon.messaging.import.version>[1.0.2,2.0.0)</carbon.messaging.import.version>
-        <carbon.security.caas.version>1.0.0-SNAPSHOT</carbon.security.caas.version>
+        <carbon.security.caas.version>1.0.0-m2</carbon.security.caas.version>
         <carbon.security.caas.import.version>[1.0.0,2.0.0)</carbon.security.caas.import.version>
-        <carbon.security.userstore.jdbc.version>1.0.0-SNAPSHOT</carbon.security.userstore.jdbc.version>
+        <carbon.security.userstore.jdbc.version>1.0.0-m2</carbon.security.userstore.jdbc.version>
         <carbon.security.userstore.jdbc.import.version>[1.0.0,2.0.0)</carbon.security.userstore.jdbc.import.version>
+        <carbon.caching.version>1.0.0</carbon.caching.version>
+        <carbon.caching.import.version>[1.0.0,2.0.0)</carbon.caching.import.version>
         <!-- 3 - Carbon Business Process Dependencies -->
         <!-- 3.1 Activiti and its dependencies  -->
         <org.activiti.wso2.version>5.19.0.wso2v3</org.activiti.wso2.version>

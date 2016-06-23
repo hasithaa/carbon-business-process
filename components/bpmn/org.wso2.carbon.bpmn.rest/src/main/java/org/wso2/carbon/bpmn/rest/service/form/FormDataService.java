@@ -22,33 +22,17 @@ import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.FormService;
 import org.activiti.engine.form.FormData;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.bpmn.core.BPMNEngineService;
 import org.wso2.carbon.bpmn.rest.common.RestResponseFactory;
-import org.wso2.carbon.bpmn.rest.internal.BPMNOSGIService;
+import org.wso2.carbon.bpmn.rest.internal.RestServiceContentHolder;
 import org.wso2.carbon.bpmn.rest.model.form.RestFormProperty;
 import org.wso2.carbon.bpmn.rest.model.form.SubmitFormRequest;
 import org.wso2.carbon.bpmn.rest.model.runtime.ProcessInstanceResponse;
-import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 //import org.wso2.carbon.bpmn.rest.model.form.FormDataResponse;
@@ -56,45 +40,45 @@ import javax.ws.rs.core.Response;
 /**
  *
  */
-@Component(
-        name = "org.wso2.carbon.bpmn.rest.service.form.FormDataService",
-        service = Microservice.class,
-        immediate = true)
-@Path("/form-data")
-public class FormDataService implements Microservice {
+//@Component(
+//        name = "org.wso2.carbon.bpmn.rest.service.form.FormDataService",
+//        service = Microservice.class,
+//        immediate = true)
+//@Path("/form-data")
+public class FormDataService { //implements Microservice {
 
     private static final Logger log = LoggerFactory.getLogger(FormDataService.class);
 
-    @Reference(
-            name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
-            service = BPMNEngineService.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterBPMNEngineService")
-    public void setBpmnEngineService(BPMNEngineService engineService) {
-        log.info("Setting BPMN engine " + engineService);
+//    @Reference(
+//            name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
+//            service = BPMNEngineService.class,
+//            cardinality = ReferenceCardinality.MANDATORY,
+//            policy = ReferencePolicy.DYNAMIC,
+//            unbind = "unRegisterBPMNEngineService")
+//    public void setBpmnEngineService(BPMNEngineService engineService) {
+//        log.info("Setting BPMN engine " + engineService);
+//
+//    }
+//
+//    protected void unRegisterBPMNEngineService(BPMNEngineService engineService) {
+//        log.info("Unregister BPMNEngineService..");
+//    }
 
-    }
+//    @Activate
+//    protected void activate(BundleContext bundleContext) {
+//        // Nothing to do
+//    }
+//
+//    @Deactivate
+//    protected void deactivate(BundleContext bundleContext) {
+//        // Nothing to do
+//    }
 
-    protected void unRegisterBPMNEngineService(BPMNEngineService engineService) {
-        log.info("Unregister BPMNEngineService..");
-    }
-
-    @Activate
-    protected void activate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @Deactivate
-    protected void deactivate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @GET
-    @Path("/")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getFormData(@Context Request request, @QueryParam("taskId") String taskId,
-                                @QueryParam("processDefinitionId") String processDefinitionId) {
+    //    @GET
+//    @Path("/")
+//    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getFormData(Request request, String taskId,
+                                String processDefinitionId) {
 
         if (taskId == null && processDefinitionId == null) {
             throw new ActivitiIllegalArgumentException(
@@ -108,7 +92,7 @@ public class FormDataService implements Microservice {
 
         FormData formData = null;
         String id = null;
-        FormService formService = BPMNOSGIService.getFormService();
+        FormService formService = RestServiceContentHolder.getInstance().getRestService().getFormService();
         if (taskId != null) {
             formData = formService.getTaskFormData(taskId);
             id = taskId;
@@ -127,10 +111,10 @@ public class FormDataService implements Microservice {
                 .build();
     }
 
-    @POST
-    @Path("/")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response submitForm(SubmitFormRequest submitRequest, @Context Request request) {
+    //    @POST
+//    @Path("/")
+//    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response submitForm(SubmitFormRequest submitRequest, Request request) {
 
         if (submitRequest == null) {
             throw new ActivitiException(
@@ -148,7 +132,7 @@ public class FormDataService implements Microservice {
                 propertyMap.put(formProperty.getId(), formProperty.getValue());
             }
         }
-        FormService formService = BPMNOSGIService.getFormService();
+        FormService formService = RestServiceContentHolder.getInstance().getRestService().getFormService();
         Response.ResponseBuilder response = Response.ok();
         if (submitRequest.getTaskId() != null) {
             formService.submitTaskFormData(submitRequest.getTaskId(), propertyMap);

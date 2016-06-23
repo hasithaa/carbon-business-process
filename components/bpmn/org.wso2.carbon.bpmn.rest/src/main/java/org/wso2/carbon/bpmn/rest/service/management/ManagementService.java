@@ -31,75 +31,41 @@ import org.activiti.engine.management.TablePageQuery;
 import org.activiti.engine.query.QueryProperty;
 import org.activiti.engine.runtime.Job;
 import org.activiti.engine.runtime.JobQuery;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.bpmn.core.BPMNEngineService;
 import org.wso2.carbon.bpmn.rest.common.RequestUtil;
 import org.wso2.carbon.bpmn.rest.common.RestResponseFactory;
 import org.wso2.carbon.bpmn.rest.common.utils.Utils;
-import org.wso2.carbon.bpmn.rest.internal.BPMNOSGIService;
+import org.wso2.carbon.bpmn.rest.internal.RestServiceContentHolder;
 import org.wso2.carbon.bpmn.rest.model.common.DataResponse;
 import org.wso2.carbon.bpmn.rest.model.runtime.JobPaginateList;
 import org.wso2.carbon.bpmn.rest.model.runtime.JobResponse;
 import org.wso2.carbon.bpmn.rest.model.runtime.ProcessEngineInfoResponse;
 import org.wso2.carbon.bpmn.rest.model.runtime.RestActionRequest;
 import org.wso2.carbon.bpmn.rest.model.runtime.TableResponse;
-import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
  *
  */
-@Component(
-        name = "org.wso2.carbon.bpmn.rest.service.management.ManagementService",
-        service = Microservice.class,
-        immediate = true)
-public class ManagementService implements Microservice {
+//@Component(
+//        name = "org.wso2.carbon.bpmn.rest.service.management.ManagementService",
+//        service = Microservice.class,
+//        immediate = true)
+public class ManagementService { //} implements Microservice {
 
-    private static final Logger log = LoggerFactory.getLogger(ManagementService.class);
-
-    @Reference(
-            name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
-            service = BPMNEngineService.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterBPMNEngineService")
-    public void setBpmnEngineService(BPMNEngineService engineService) {
-        log.info("Setting BPMN engine " + engineService);
-
-    }
-
-    protected void unRegisterBPMNEngineService(BPMNEngineService engineService) {
-        log.info("Unregister BPMNEngineService..");
-    }
-
-    private static final String EXECUTE_ACTION = "execute";
     protected static final Integer DEFAULT_RESULT_SIZE = 10;
-    private static Map<String, QueryProperty> properties;
+    private static final Logger log = LoggerFactory.getLogger(ManagementService.class);
+    private static final String EXECUTE_ACTION = "execute";
     private static final List<String> jobPropertiesList = new ArrayList<>();
+    private static Map<String, QueryProperty> properties;
 
     static {
         jobPropertiesList.add("id");
@@ -132,21 +98,9 @@ public class ManagementService implements Microservice {
     protected RestResponseFactory restResponseFactory = new RestResponseFactory();
 
 
-    @Activate
-    protected void activate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @Deactivate
-    protected void deactivate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @GET
-    @Path("/jobs")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public DataResponse getJobs(@Context Request request) {
-        JobQuery query = BPMNOSGIService.getManagementService().createJobQuery();
+    public DataResponse getJobs(Request request) {
+        JobQuery query = RestServiceContentHolder.getInstance().getRestService().getManagementService()
+                .createJobQuery();
         QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());
         Map<String, List<String>> queryParams = decoder.parameters();
         Map<String, String> allRequestParams =
@@ -219,13 +173,12 @@ public class ManagementService implements Microservice {
                 .paginateList(allRequestParams, query, "id", properties);
     }
 
-    @GET
-    @Path("/jobs/{job-id}/exception-stacktrace")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public String getJobStacktrace(@PathParam("job-id") String jobId) {
+
+    public String getJobStacktrace(String jobId) {
         Job job = getJobFromResponse(jobId);
 
-        String stackTrace = BPMNOSGIService.getManagementService().getJobExceptionStacktrace(job.getId());
+        String stackTrace = RestServiceContentHolder.getInstance().getRestService().getManagementService()
+                .getJobExceptionStacktrace(job.getId());
 
         if (stackTrace == null) {
             throw new ActivitiObjectNotFoundException(
@@ -238,7 +191,8 @@ public class ManagementService implements Microservice {
     }
 
     protected Job getJobFromResponse(String jobId) {
-        Job job = BPMNOSGIService.getManagementService().createJobQuery().jobId(jobId).singleResult();
+        Job job = RestServiceContentHolder.getInstance().getRestService().getManagementService().createJobQuery()
+                .jobId(jobId).singleResult();
 
         if (job == null) {
             throw new ActivitiObjectNotFoundException(
@@ -247,20 +201,15 @@ public class ManagementService implements Microservice {
         return job;
     }
 
-    @GET
-    @Path("/jobs/{job-id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public JobResponse getJob(@PathParam("job-id") String jobId, @Context Request request) {
+    public JobResponse getJob(String jobId, Request request) {
         Job job = getJobFromResponse(jobId);
 
         return restResponseFactory.createJobResponse(job, request.getUri());
     }
 
-    @DELETE
-    @Path("/jobs/{job-id}")
-    public void deleteJob(@PathParam("job-id") String jobId) {
+    public void deleteJob(String jobId) {
         try {
-            BPMNOSGIService.getManagementService().deleteJob(jobId);
+            RestServiceContentHolder.getInstance().getRestService().getManagementService().deleteJob(jobId);
         } catch (ActivitiObjectNotFoundException aonfe) {
             // Re-throw to have consistent error-messaging acrosse REST-api
             throw new ActivitiObjectNotFoundException(
@@ -269,12 +218,7 @@ public class ManagementService implements Microservice {
         Response.noContent().build();
     }
 
-    @POST
-    @Path("/jobs/{job-id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public void executeJobAction(@PathParam("job-id") String jobId,
-                                 RestActionRequest actionRequest) {
+    public void executeJobAction(String jobId, RestActionRequest actionRequest) {
 
         if (actionRequest == null || !EXECUTE_ACTION.equals(actionRequest.getAction())) {
             throw new ActivitiIllegalArgumentException(
@@ -282,7 +226,7 @@ public class ManagementService implements Microservice {
         }
 
         try {
-            BPMNOSGIService.getManagementService().executeJob(jobId);
+            RestServiceContentHolder.getInstance().getRestService().getManagementService().executeJob(jobId);
         } catch (ActivitiObjectNotFoundException aonfe) {
             // Re-throw to have consistent error-messaging acrosse REST-api
             throw new ActivitiObjectNotFoundException(
@@ -292,12 +236,10 @@ public class ManagementService implements Microservice {
         Response.noContent().build();
     }
 
-    @GET
-    @Path("/engine")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public ProcessEngineInfoResponse getEngineInfo() {
         ProcessEngineInfoResponse response = new ProcessEngineInfoResponse();
-        ProcessEngine engine = BPMNOSGIService.getBPMNEngineService().getProcessEngine();
+        ProcessEngine engine = RestServiceContentHolder.getInstance().getRestService().getBPMNEngineService()
+                .getProcessEngine();
 
         try {
             ProcessEngineInfo engineInfo = ProcessEngines.getProcessEngineInfo(engine.getName());
@@ -317,26 +259,19 @@ public class ManagementService implements Microservice {
         return response;
     }
 
-    @GET
-    @Path("/properties")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Map<String, String> getProperties() {
-        return BPMNOSGIService.getManagementService().getProperties();
+        return RestServiceContentHolder.getInstance().getRestService().getManagementService().getProperties();
     }
 
-    @GET
-    @Path("/tables")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public List<TableResponse> getTables(@Context Request request) {
         return restResponseFactory
-                .createTableResponseList(BPMNOSGIService.getManagementService().getTableCount(), request.getUri());
+                .createTableResponseList(RestServiceContentHolder.getInstance().getRestService().getManagementService
+                        ().getTableCount(), request.getUri());
     }
 
-    @GET
-    @Path("/tables/{table-name}/columns")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public TableMetaData getTableMetaData(@PathParam("table-name") String tableName) {
-        TableMetaData response = BPMNOSGIService.getManagementService().getTableMetaData(tableName);
+    public TableMetaData getTableMetaData(String tableName) {
+        TableMetaData response = RestServiceContentHolder.getInstance().getRestService().getManagementService()
+                .getTableMetaData(tableName);
 
         if (response == null) {
             throw new ActivitiObjectNotFoundException(
@@ -345,17 +280,12 @@ public class ManagementService implements Microservice {
         return response;
     }
 
-    @GET
-    @Path("/tables/{table-name}/data")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public DataResponse getTableData(@PathParam("table-name") String tableName,
-                                     @Context Request request,
-                                     @QueryParam("orderAscendingColumn") String orderAsc,
-                                     @QueryParam("orderDescendingColumn") String orderDesc) {
+    public DataResponse getTableData(String tableName, Request request, String orderAsc, String orderDesc) {
 
         Map<String, String> allRequestParams = new HashMap<>();
         // Check if table exists before continuing
-        if (BPMNOSGIService.getManagementService().getTableMetaData(tableName) == null) {
+        if (RestServiceContentHolder.getInstance().getRestService().getManagementService().getTableMetaData
+                (tableName) == null) {
             throw new ActivitiObjectNotFoundException(
                     "Could not find a table with name '" + tableName + "'.", String.class);
         }
@@ -389,7 +319,8 @@ public class ManagementService implements Microservice {
         DataResponse response = new DataResponse();
 
         TablePageQuery tablePageQuery =
-                BPMNOSGIService.getManagementService().createTablePageQuery().tableName(tableName);
+                RestServiceContentHolder.getInstance().getRestService().getManagementService().createTablePageQuery()
+                        .tableName(tableName);
 
         if (orderAsc != null) {
             allRequestParams.put("orderAscendingColumn", orderAsc);
@@ -414,12 +345,9 @@ public class ManagementService implements Microservice {
         return response;
     }
 
-    @GET
-    @Path("/tables/{table-name}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public TableResponse getTable(@PathParam("table-name") String tableName,
-                                  @Context Request request) {
-        Map<String, Long> tableCounts = BPMNOSGIService.getManagementService().getTableCount();
+    public TableResponse getTable(String tableName, Request request) {
+        Map<String, Long> tableCounts = RestServiceContentHolder.getInstance().getRestService().getManagementService
+                ().getTableCount();
 
         TableResponse response = null;
         for (Map.Entry<String, Long> entry : tableCounts.entrySet()) {

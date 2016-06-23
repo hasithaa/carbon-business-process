@@ -31,11 +31,14 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.bpmn.core.ActivitiEngineBuilder;
 import org.wso2.carbon.bpmn.core.BPMNConstants;
 import org.wso2.carbon.bpmn.core.BPMNEngineService;
-import org.wso2.carbon.bpmn.core.BPMNServerHolder;
-import org.wso2.carbon.bpmn.core.db.DataSourceHandler;
+import org.wso2.carbon.bpmn.core.BPMNEngineServiceImpl;
+import org.wso2.carbon.bpmn.core.config.ProcessEngineConfiguration;
+import org.wso2.carbon.bpmn.core.config.YamlBasedProcessEngineConfigurationFactory;
+import org.wso2.carbon.bpmn.core.deployment.BPMNDeployer;
 import org.wso2.carbon.datasource.core.api.DataSourceManagementService;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.security.caas.user.core.service.RealmService;
 
 import javax.naming.Context;
@@ -46,8 +49,8 @@ import javax.naming.NamingException;
  */
 
 @Component(
-        name = "org.wso2.carbon.bpmn.core.internal.BPMNServiceComponent",
-        service = BPMNEngineService.class,
+        name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
+        service = BPMNEngineServiceImpl.class,
         immediate = true)
 
 public class BPMNServiceComponent {
@@ -58,7 +61,7 @@ public class BPMNServiceComponent {
     private JNDIContextManager jndiContextManager;
     private BundleContext bundleContext;
 
-  //  Set CarbonRealmService
+    //  Set CarbonRealmService
     @Reference(
             name = "org.wso2.carbon.security.CarbonRealmServiceImpl",
             service = RealmService.class,
@@ -67,12 +70,16 @@ public class BPMNServiceComponent {
             unbind = "unregisterCarbonRealm"
     )
     public void registerCarbonRealm(RealmService carbonRealmService) {
-        log.info("register CarbonRealmService...");
-        IdentityDataHolder.getInstance().registerCarbonRealmService(carbonRealmService);
+        if (log.isDebugEnabled()) {
+            log.debug("register CarbonRealmService...");
+        }
+        BPMNServerHolder.getInstance().registerCarbonRealmService(carbonRealmService);
     }
 
     public void unregisterCarbonRealm(RealmService carbonRealmService) {
-        log.info("Unregister CarbonRealmService...");
+        if (log.isDebugEnabled()) {
+            log.debug("Unregister CarbonRealmService...");
+        }
     }
 
     @Reference(
@@ -83,12 +90,16 @@ public class BPMNServiceComponent {
             unbind = "unRegisterJNDIContext")
 
     public void registerJNDIContext(JNDIContextManager contextManager) {
-        log.info("register JNDI Context");
+        if (log.isDebugEnabled()) {
+            log.debug("register JNDI Context");
+        }
         this.jndiContextManager = contextManager;
     }
 
     public void unRegisterJNDIContext(JNDIContextManager contextManager) {
-        log.info("Unregister JNDI Context");
+        if (log.isDebugEnabled()) {
+            log.debug("Unregister JNDI Context");
+        }
     }
 
     @Reference(
@@ -98,12 +109,16 @@ public class BPMNServiceComponent {
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unRegisterDataSourceService")
     public void registerDataSourceService(DataSourceService datasource) {
-        log.info("register Datasource service");
+        if (log.isDebugEnabled()) {
+            log.debug("register Datasource service");
+        }
         this.datasourceService = datasource;
     }
 
     public void unRegisterDataSourceService(DataSourceService datasource) {
-        log.info("unregister datasource service");
+        if (log.isDebugEnabled()) {
+            log.debug("unregister datasource service");
+        }
     }
 
     @Reference(
@@ -115,34 +130,44 @@ public class BPMNServiceComponent {
 
     public void registerDataSourceManagementService(
             DataSourceManagementService datasourceMgtService) {
-        log.info("register Datasource Management service");
+        if (log.isDebugEnabled()) {
+            log.debug("register Datasource Management service");
+        }
         this.datasourceManagementService = datasourceMgtService;
     }
 
     public void unRegisterDataSourceManagementService(DataSourceManagementService datasource) {
-        log.info("unregister datasource service");
+        if (log.isDebugEnabled()) {
+            log.debug("unregister datasource service");
+        }
     }
 
     @Activate
     protected void activate(ComponentContext ctxt) {
-        log.info("BPMN core component activator...");
         try {
             this.bundleContext = ctxt.getBundleContext();
             registerJNDIContextForActiviti();
             BPMNServerHolder holder = BPMNServerHolder.getInstance();
+
+            // Reading Process engine configuration.
+            YamlBasedProcessEngineConfigurationFactory yamlBasedProcessEngineConfigurationFactory = new
+                    YamlBasedProcessEngineConfigurationFactory();
+            ProcessEngineConfiguration processEngineConfiguration =
+                    yamlBasedProcessEngineConfigurationFactory.getProcessEngineConfiguration();
+            holder.setProcessEngineConfiguration(processEngineConfiguration);
+
             ActivitiEngineBuilder.getInstance();
             holder.setEngine(ActivitiEngineBuilder.getInstance().buildEngine());
             BPMNEngineServiceImpl bpmnEngineService = new BPMNEngineServiceImpl();
             bpmnEngineService
                     .setProcessEngine(ActivitiEngineBuilder.getInstance().getProcessEngine());
-            bpmnEngineService.setCarbonRealmService(IdentityDataHolder.getInstance().getCarbonRealmService());
+            bpmnEngineService.setCarbonRealmService(holder.getInstance().getCarbonRealmService());
             bundleContext
                     .registerService(BPMNEngineService.class.getName(), bpmnEngineService, null);
-            // Create metadata table for deployments
-            DataSourceHandler dataSourceHandler = new DataSourceHandler();
-            dataSourceHandler
-                    .initDataSource(ActivitiEngineBuilder.getInstance().getDataSourceJndiName());
-            dataSourceHandler.closeDataSource();
+
+            BPMNDeployer deployer = new BPMNDeployer();
+            bpmnEngineService.setBpmnDeployer(deployer);
+            bundleContext.registerService(Deployer.class.getName(), deployer, null);
 
         } catch (Throwable t) {
             log.error("Error initializing bpmn component " + t);
@@ -151,7 +176,9 @@ public class BPMNServiceComponent {
 
     @Deactivate
     protected void deactivate(ComponentContext ctxt) {
-        log.info("Stopping the BPMN core component...");
+        if (log.isDebugEnabled()) {
+            log.debug("Stopping the BPMN core component...");
+        }
         ProcessEngines.destroy();
     }
 
@@ -162,7 +189,7 @@ public class BPMNServiceComponent {
 
         Context subcontext = context.createSubcontext("java:comp/jdbc");
         subcontext.bind(BPMNConstants.BPMN_DB_CONTEXT_NAME,
-                        datasourceService.getDataSource(BPMNConstants.BPMN_DB_NAME));
+                datasourceService.getDataSource(BPMNConstants.BPMN_DB_NAME));
     }
 
 }

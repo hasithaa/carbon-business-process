@@ -1,3 +1,4 @@
+enableCache: true
 credentialStore:
  connector: "#JDBCCS1"
 identityStore:

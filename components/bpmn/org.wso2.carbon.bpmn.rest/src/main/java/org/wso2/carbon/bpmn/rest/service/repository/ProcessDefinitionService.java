@@ -29,24 +29,15 @@ import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.IdentityLinkType;
 import org.apache.commons.io.IOUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.bpmn.core.BPMNEngineService;
 import org.wso2.carbon.bpmn.rest.common.RestResponseFactory;
 import org.wso2.carbon.bpmn.rest.common.RestUrls;
 import org.wso2.carbon.bpmn.rest.common.utils.Utils;
-import org.wso2.carbon.bpmn.rest.internal.BPMNOSGIService;
+import org.wso2.carbon.bpmn.rest.internal.RestServiceContentHolder;
 import org.wso2.carbon.bpmn.rest.model.common.DataResponse;
 import org.wso2.carbon.bpmn.rest.model.repository.ProcessDefinitionResponse;
 import org.wso2.carbon.bpmn.rest.model.repository.ProcessDefinitionsPaginateList;
-import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
 
 import java.io.InputStream;
@@ -54,12 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 //import org.wso2.carbon.bpmn.rest.common.exception.BPMNOSGIServiceException;
@@ -67,32 +52,18 @@ import javax.ws.rs.core.Response;
 /**
  *
  */
-@Component(
-        name = "org.wso2.carbon.bpmn.rest.service.repository.ProcessDefinitionService",
-        service = Microservice.class,
-        immediate = true)
-@Path("/process-definitions")
-public class ProcessDefinitionService implements Microservice {
+//@Component(
+//        name = "org.wso2.carbon.bpmn.rest.service.repository.ProcessDefinitionService",
+//        service = Microservice.class,
+//        immediate = true)
+//@Path("/process-definitions")
+public class ProcessDefinitionService { //} implements Microservice {
 
     private static final Map<String, QueryProperty> properties = new HashMap<>();
     private static final List<String> allPropertiesList = new ArrayList<>();
 
     private static final Logger log = LoggerFactory.getLogger(ProcessDefinitionService.class);
 
-    @Reference(
-            name = "org.wso2.carbon.bpmn.core.BPMNEngineService",
-            service = BPMNEngineService.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterBPMNEngineService")
-    public void setBpmnEngineService(BPMNEngineService engineService) {
-        log.info("Setting BPMN engine " + engineService);
-
-    }
-
-    protected void unRegisterBPMNEngineService(BPMNEngineService engineService) {
-        log.info("Unregister BPMNEngineService..");
-    }
 
     static {
         properties.put("id", ProcessDefinitionQueryProperty.PROCESS_DEFINITION_ID);
@@ -126,21 +97,10 @@ public class ProcessDefinitionService implements Microservice {
         allPropertiesList.add("sort");
     }
 
-    @Activate
-    protected void activate(BundleContext bundleContext) {
-        // Nothing to do
-    }
 
-    @Deactivate
-    protected void deactivate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @GET
-    @Path("/")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getProcessDefinitions(@Context Request request) {
-        RepositoryService repositoryService = BPMNOSGIService.getRepositoryService();
+    public Response getProcessDefinitions(Request request) {
+        RepositoryService repositoryService = RestServiceContentHolder.getInstance().getRestService()
+                .getRepositoryService();
         Map<String, String> allRequestParams = new HashMap<>();
         QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());
         ProcessDefinitionQuery processDefinitionQuery =
@@ -229,24 +189,18 @@ public class ProcessDefinitionService implements Microservice {
         return Response.ok().entity(response).build();
     }
 
-    @GET
-    @Path("/{process-definition-id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public ProcessDefinitionResponse getProcessDefinition(
-            @PathParam("process-definition-id") String processDefinitionId,
-            @Context Request request) {
+    public ProcessDefinitionResponse getProcessDefinition(String processDefinitionId,
+                                                          Request request) {
         ProcessDefinition processDefinition = getProcessDefinitionFromRequest(processDefinitionId);
         return new RestResponseFactory()
                 .createProcessDefinitionResponse(processDefinition, request.getUri());
     }
 
-    @GET
-    @Path("/{process-definition-id}/resource-data")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getProcessDefinitionResource(
-            @PathParam("process-definition-id") String processDefinitionId) {
 
-        RepositoryService repositoryService = BPMNOSGIService.getRepositoryService();
+    public Response getProcessDefinitionResource(String processDefinitionId) {
+
+        RepositoryService repositoryService = RestServiceContentHolder.getInstance().getRestService()
+                .getRepositoryService();
         ProcessDefinition processDefinition = getProcessDefinitionFromRequest(processDefinitionId);
         String resourceID = processDefinition.getResourceName();
         String contentType = Utils.resolveContentType(processDefinition.getResourceName());
@@ -255,13 +209,10 @@ public class ProcessDefinitionService implements Microservice {
                         resourceID, repositoryService)).build();
     }
 
-    @GET
-    @Path("/{process-definition-id}/identity-links")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getIdentityLinks(@PathParam("process-definition-id") String processDefinitionId,
-                                     @Context Request request) {
+    public Response getIdentityLinks(String processDefinitionId, Request request) {
 
-        RepositoryService repositoryService = BPMNOSGIService.getRepositoryService();
+        RepositoryService repositoryService = RestServiceContentHolder.getInstance().getRestService()
+                .getRepositoryService();
         ProcessDefinition processDefinition = getProcessDefinitionFromRequest(processDefinitionId);
 
         return Response.ok().entity(new RestResponseFactory().createRestIdentityLinks(
@@ -269,18 +220,13 @@ public class ProcessDefinitionService implements Microservice {
                 request.getUri())).build();
     }
 
-    @GET
-    @Path("/{process-definition-id}/identity-links/{family}/{identity-id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getIdentityLinks(@PathParam("process-definition-id") String processDefinitionId,
-                                     @PathParam("family") String family,
-                                     @PathParam("identity-id") String identityId,
-                                     @Context Request request) {
+    public Response getIdentityLinks(String processDefinitionId, String family, String identityId, Request request) {
 
         ProcessDefinition processDefinition = getProcessDefinitionFromRequest(processDefinitionId);
         validateIdentityLinkArguments(family, identityId);
 
-        RepositoryService repositoryService = BPMNOSGIService.getRepositoryService();
+        RepositoryService repositoryService = RestServiceContentHolder.getInstance().getRestService()
+                .getRepositoryService();
 
         // Check if identitylink to get exists
         IdentityLink link =
@@ -291,7 +237,8 @@ public class ProcessDefinitionService implements Microservice {
 
     private ProcessDefinition getProcessDefinitionFromRequest(String processDefinitionId) {
 
-        RepositoryService repositoryService = BPMNOSGIService.getRepositoryService();
+        RepositoryService repositoryService = RestServiceContentHolder.getInstance().getRestService()
+                .getRepositoryService();
         ProcessDefinition processDefinition =
                 repositoryService.getProcessDefinition(processDefinitionId);
 
@@ -325,10 +272,9 @@ public class ProcessDefinitionService implements Microservice {
         List<String> resourceList = repositoryService.getDeploymentResourceNames(deploymentId);
 
         if (resourceList.contains(resourceId)) {
-            final InputStream resourceStream =
-                    repositoryService.getResourceAsStream(deploymentId, resourceId);
 
-            try {
+            try (final InputStream resourceStream =
+                         repositoryService.getResourceAsStream(deploymentId, resourceId)) {
                 return IOUtils.toByteArray(resourceStream);
             } catch (Exception e) {
                 throw new ActivitiException("Error converting resource stream", e);

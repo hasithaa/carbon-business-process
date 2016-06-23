@@ -22,44 +22,32 @@ import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.GroupQueryImpl;
 import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
-//import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.GroupEntityManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.bpmn.core.BPMNServerHolder;
-import org.wso2.carbon.bpmn.core.internal.IdentityDataHolder;
-import org.wso2.carbon.security.caas.user.core.bean.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.bpmn.core.internal.BPMNServerHolder;
 import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
-import org.wso2.carbon.security.caas.user.core.store.AuthorizationStore;
 import org.wso2.carbon.security.caas.user.core.store.IdentityStore;
-
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- *
+ * CAAS based Group Identity Manager.
  */
 public class BPSGroupIdentityManager extends GroupEntityManager {
 
-    private static Log log = LogFactory.getLog(BPSUserIdentityManager.class);
+    private static Logger log = LoggerFactory.getLogger(BPSUserIdentityManager.class);
 
-    private AuthorizationStore authorizationStore;
     private IdentityStore identityStore;
 
     public BPSGroupIdentityManager() {
-
-        this.authorizationStore = IdentityDataHolder.getInstance().getCarbonRealmService().getAuthorizationStore();
-        this.identityStore = IdentityDataHolder.getInstance().getCarbonRealmService().getIdentityStore();
+        this.identityStore = BPMNServerHolder.getInstance().getCarbonRealmService().getIdentityStore();
     }
-
 
     @Override
     public Group createNewGroup(String groupId) {
@@ -98,62 +86,32 @@ public class BPSGroupIdentityManager extends GroupEntityManager {
     }
 
     @Override
-    public List<Group> findGroupsByUser(String userId) {
-        String userName = getUserNameForGivenUserId(userId);
+    public List<Group> findGroupsByUser(String userName) {
+
         List<Group> groups = new ArrayList<Group>();
-        if (userName.isEmpty()) {
-
-        } else {
+        if (!userName.isEmpty()) {
             try {
-
-                List<Role> roles = authorizationStore.getRolesOfUser
-                        (userId, identityStore.getUser(userName).getIdentityStoreId());
-
-                groups = roles.stream().map(role -> new GroupEntity(role.getRoleId())).
-                        collect(Collectors.toList());
-
-//                for (Role role : roles) {
-//                    Group group = new GroupEntity(role.getRoleId());
-//                    groups.add(group);
-//                }
-
-            } catch (IdentityStoreException | UserNotFoundException | AuthorizationStoreException e) {
-                String msg = "Failed to get roles of the user: " + userId + "." +
+                User user = identityStore.getUser(userName);
+                if (user != null) {
+                    List<org.wso2.carbon.security.caas.user.core.bean.Group> groupsOfUser = identityStore
+                            .getGroupsOfUser(user.getUserId(), user.getIdentityStoreId());
+                    if (groupsOfUser != null) {
+                        GroupEntity groupEntity;
+                        for (org.wso2.carbon.security.caas.user.core.bean.Group group : groupsOfUser) {
+                            groupEntity = new GroupEntity(group.getGroupId());
+                            groupEntity.setName(group.getName());
+                            groups.add(groupEntity);
+                        }
+                    }
+                }
+            } catch (IdentityStoreException | UserNotFoundException e) {
+                String msg = "Failed to get groups of the user: " + userName + "." +
                         " Returning an empty roles list.";
                 log.error(msg, e);
             }
-
-
         }
         return groups;
 
-    }
-
-    // todo: get matching username for userid
-    private String getUserNameForGivenUserId(String userId) {
-        String userName = "";
-        try { //todo: need to set length to -1
-            List<org.wso2.carbon.security.caas.user.core.bean.User> users =
-                    identityStore.listUsers("%", 0, 10);
-            if (!users.isEmpty()) {
-                Optional<User> matchingObjects = users.stream().
-                        filter(u -> u.getUserId().equals(userId)).
-                        findFirst();
-                if (matchingObjects.isPresent()) {
-                    org.wso2.carbon.security.caas.user.core.bean.User filteredUser =
-                            matchingObjects.get();
-                    userName = filteredUser.getUserName();
-                } else {
-                    log.info("No matching user found for userId: " + userId);
-                }
-
-            }
-
-        } catch (IdentityStoreException e) {
-            String msg = "Unable to get username for userId : " + userId;
-            log.error(msg, e);
-        }
-        return userName;
     }
 
     @Override
