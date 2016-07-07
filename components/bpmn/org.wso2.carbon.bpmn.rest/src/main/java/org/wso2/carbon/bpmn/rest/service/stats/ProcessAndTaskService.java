@@ -23,27 +23,31 @@ import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
-import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.repository.ProcessDefinition;
-import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.bpmn.rest.common.utils.BPMNOSGIService;
+import org.wso2.carbon.bpmn.rest.model.stats.BPMNTaskInstance;
+import org.wso2.carbon.bpmn.rest.model.stats.CompletedProcesses;
+import org.wso2.carbon.bpmn.rest.model.stats.DeployedProcesses;
+import org.wso2.carbon.bpmn.rest.model.stats.InstanceStatPerMonth;
+import org.wso2.carbon.bpmn.rest.model.stats.ProcessTaskCount;
+import org.wso2.carbon.bpmn.rest.model.stats.ResponseHolder;
+import org.wso2.carbon.bpmn.rest.model.stats.TaskInfo;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.bpmn.rest.model.stats.*;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Service class which includes functionalities related to processes and tasks
